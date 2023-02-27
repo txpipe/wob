@@ -3,7 +3,7 @@ use tracing::instrument;
 
 use super::prelude::*;
 
-const DEFAULT_IMAGE: &str = "cardanosolutions/ogmios:latest";
+const DEFAULT_IMAGE: &str = "inputoutput/cardano-node:latest";
 
 #[derive(Default, Clone, Deserialize, Serialize)]
 pub struct Config {
@@ -15,7 +15,7 @@ fn define_image(config: &Config) -> &str {
     config.image.as_deref().unwrap_or(DEFAULT_IMAGE)
 }
 
-#[instrument(name = "ogmios", skip_all)]
+#[instrument(name = "node", skip_all)]
 pub async fn pull(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
@@ -24,22 +24,33 @@ pub async fn pull(ctx: &Context, config: &Config) -> Result<(), Error> {
     Ok(())
 }
 
-#[instrument(name = "ogmios", skip_all)]
-pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
+#[instrument(name = "node", skip_all)]
+pub async fn prune(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
+    ctx.remove_image(image_name).await?;
+
+    Ok(())
+}
+
+#[instrument(name = "node", skip_all)]
+pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
+    let image = define_image(config);
+
     let spec = ContainerSpec {
-        image: Some(image_name),
+        image: Some(image),
+        cmd: None,
+        env: Some(vec!["NETWORK=preview"]),
         ..Default::default()
     };
 
-    ctx.container_up("ogmios", spec).await?;
+    ctx.container_up("node", spec).await?;
 
     Ok(())
 }
 
 pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
-    ctx.container_down("ogmios").await?;
+    ctx.container_down("node").await?;
 
     Ok(())
 }

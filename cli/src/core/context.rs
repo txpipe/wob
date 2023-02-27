@@ -1,11 +1,8 @@
 use bollard::{
-    container::CreateContainerOptions,
-    image::CreateImageOptions,
-    service::{CreateImageInfo, ProgressDetail},
-    Docker,
+    container::CreateContainerOptions, image::CreateImageOptions, service::ProgressDetail, Docker,
 };
 use futures::StreamExt;
-use tracing::{error, info, instrument};
+use tracing::{debug, error, info, instrument};
 
 use super::Error;
 use crate::config::Config;
@@ -30,9 +27,26 @@ impl Context {
     }
 
     #[instrument(skip(self))]
+    pub async fn remove_image(&self, image_name: &str) -> Result<(), Error> {
+        if !self.image_exists(image_name).await? {
+            debug!("image doesn't exists");
+            return Ok(());
+        }
+
+        self.docker
+            .remove_image(image_name, None, None)
+            .await
+            .map_err(Error::docker)?;
+
+        info!("image removed");
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
     pub async fn pull_image(&self, image_name: &str) -> Result<(), Error> {
         if self.image_exists(image_name).await? {
-            println!("image already exists");
+            debug!("image already exists");
             return Ok(());
         }
 
@@ -87,12 +101,12 @@ impl Context {
         Ok(())
     }
 
-    fn define_name(&self, suffix: &str) -> String {
+    fn define_container_name(&self, suffix: &str) -> String {
         format!("{}_{}", self.config.name, suffix)
     }
 
     pub async fn container_up(&self, suffix: &str, spec: ContainerSpec<&str>) -> Result<(), Error> {
-        let name = &self.define_name(suffix);
+        let name = &self.define_container_name(suffix);
 
         if !self.container_exists(name).await? {
             self.create_container(name, spec).await?;
@@ -107,7 +121,7 @@ impl Context {
     }
 
     pub async fn container_down(&self, suffix: &str) -> Result<(), Error> {
-        let name = &self.define_name(suffix);
+        let name = &self.define_container_name(suffix);
 
         if !self.container_exists(name).await? {
             return Ok(());
