@@ -1,0 +1,10 @@
+name = "full"
+
+[network]
+wellknown = "Preview"
+
+[ogmios]
+enabled = true
+
+[node]
+enabled = true
