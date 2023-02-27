@@ -53,6 +53,15 @@ pub async fn pull(config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(skip_all)]
+pub async fn prune(config: &Config) -> Result<(), Error> {
+    let ctx = Context::try_from(config.clone())?;
+
+    for_every_enabled_provider!(prune, &ctx);
+
+    Ok(())
+}
+
+#[instrument(skip_all)]
 pub async fn up(config: &Config) -> Result<(), Error> {
     let ctx = Context::try_from(config.clone())?;
 
