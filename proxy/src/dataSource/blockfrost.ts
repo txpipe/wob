@@ -46,11 +46,14 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
 
     try {
       const response = await axios(requestConfig);
-      return response.data.map((r: Reward) => { 
+      return response.data.map((r: Reward) => {
         return r;
       });
     } catch (err: any) {
-      throw new BadRequestError(err.response?.data?.message || `unable to fetch rewards history for stake address: ${stakeAddress}`);
+      throw new BadRequestError(
+        err.response?.data?.message ||
+          `unable to fetch rewards history for stake address: ${stakeAddress}`
+      );
     }
   }
 
@@ -70,7 +73,10 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
 
       return pool;
     } catch (err: any) {
-      throw new BadRequestError(err.response?.data?.message || `unable to fetch information for pool with id: ${poolId}`);
+      throw new BadRequestError(
+        err.response?.data?.message ||
+          `unable to fetch information for pool with id: ${poolId}`
+      );
     }
   }
 
@@ -78,8 +84,8 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
     const requestConfig: AxiosRequestConfig = {
       method: "POST",
       url: `${getBaseUrl(this.network)}/tx/submit`,
-      headers: { project_id: this.apiKey, 'Content-Type': 'application/cbor' },
-      data: JSON.stringify(cbor)
+      headers: { project_id: this.apiKey, "Content-Type": "application/cbor" },
+      data: JSON.stringify(cbor),
     };
     return [];
   }

@@ -73,7 +73,6 @@ const router = Router();
 
 router.get("/rewards/:stakeAddress", getRewardsHistoryHandler);
 router.get("/pool/:poolId", getPoolHandler);
-
 router.post(
   "/tx/submit",
   transactionSubmitValidator,
