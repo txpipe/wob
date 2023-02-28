@@ -1,9 +1,9 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { BadRequestError } from "../api/errors";
-import { Pool, Reward } from "../model/blockfrost";
+import axios, { AxiosRequestConfig } from 'axios';
+import { BadRequestError } from '../api/errors';
+import { Pool, Reward } from '../model/blockfrost';
 
 // Network specifics for blockfrost data source
-export type Network = "cardano-mainnet" | "cardano-preprod" | "cardano-preview";
+export type Network = 'cardano-mainnet' | 'cardano-preprod' | 'cardano-preview';
 
 /**
  * Returns the blockfrost base URL given the network we are connecting to
@@ -11,82 +11,76 @@ export type Network = "cardano-mainnet" | "cardano-preprod" | "cardano-preview";
  * @returns
  */
 function getBaseUrl(network: Network): string {
-  switch (network) {
-    case "cardano-mainnet":
-      return "https://cardano-mainnet.blockfrost.io/api/v0";
-    case "cardano-preprod":
-      return "https://cardano-preprod.blockfrost.io/api/v0";
-    case "cardano-preview":
-      return "https://cardano-preview.blockfrost.io/api/v0";
-  }
+    switch (network) {
+        case 'cardano-mainnet':
+            return 'https://cardano-mainnet.blockfrost.io/api/v0';
+        case 'cardano-preprod':
+            return 'https://cardano-preprod.blockfrost.io/api/v0';
+        case 'cardano-preview':
+            return 'https://cardano-preview.blockfrost.io/api/v0';
+    }
 }
 
 export interface BlockfrostDataSource {
-  getRewardsHistory(stakeAddress: string): Promise<unknown[]>;
-  getPoolInfo(poolId: string): Promise<Pool | undefined>;
-  postTransactionSubmit(cbor: string): Promise<unknown[]>;
+    getRewardsHistory(stakeAddress: string): Promise<unknown[]>;
+    getPoolInfo(poolId: string): Promise<Pool | undefined>;
+    postTransactionSubmit(cbor: string): Promise<unknown[]>;
 }
 
 export class BlockfrostAPIDataSource implements BlockfrostDataSource {
-  private apiKey: string;
-  private network: Network;
+    private apiKey: string;
+    private network: Network;
 
-  constructor(apiKey: string, network: Network) {
-    this.apiKey = apiKey;
-    this.network = network;
-  }
-
-  public async getRewardsHistory(stakeAddress: string): Promise<unknown[]> {
-    // @TODO: Add pagination query params
-    const requestConfig: AxiosRequestConfig = {
-      method: "GET",
-      url: `${getBaseUrl(this.network)}/accounts/${stakeAddress}/rewards`,
-      headers: { project_id: this.apiKey },
-    };
-
-    try {
-      const response = await axios(requestConfig);
-      return response.data.map((r: Reward) => {
-        return r;
-      });
-    } catch (err: any) {
-      throw new BadRequestError(
-        err.response?.data?.message ||
-          `unable to fetch rewards history for stake address: ${stakeAddress}`
-      );
+    constructor(apiKey: string, network: Network) {
+        this.apiKey = apiKey;
+        this.network = network;
     }
-  }
 
-  public async getPoolInfo(poolId: string): Promise<Pool | undefined> {
-    const requestConfig: AxiosRequestConfig = {
-      method: "GET",
-      url: `${getBaseUrl(this.network)}/pools/${poolId}`,
-      headers: { project_id: this.apiKey },
-    };
+    public async getRewardsHistory(stakeAddress: string): Promise<unknown[]> {
+        // @TODO: Add pagination query params
+        const requestConfig: AxiosRequestConfig = {
+            method: 'GET',
+            url: `${getBaseUrl(this.network)}/accounts/${stakeAddress}/rewards`,
+            headers: { project_id: this.apiKey },
+        };
 
-    try {
-      const response = await axios(requestConfig);
-
-      const pool: Pool = {
-        ...response.data,
-      };
-
-      return pool;
-    } catch (err: any) {
-      throw new BadRequestError(
-        err.response?.data?.message ||
-          `unable to fetch information for pool with id: ${poolId}`
-      );
+        try {
+            const response = await axios(requestConfig);
+            return response.data.map((r: Reward) => {
+                return r;
+            });
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to fetch rewards history for stake address: ${stakeAddress}`);
+        }
     }
-  }
 
-  public async postTransactionSubmit(cbor: string): Promise<unknown[]> {
-    const requestConfig: AxiosRequestConfig = {
-      method: "POST",
-      url: `${getBaseUrl(this.network)}/tx/submit`,
-      headers: { project_id: this.apiKey, "Content-Type": "application/cbor" },
-      data: JSON.stringify(cbor),
-    };
-    return [];
-  }
+    public async getPoolInfo(poolId: string): Promise<Pool | undefined> {
+        const requestConfig: AxiosRequestConfig = {
+            method: 'GET',
+            url: `${getBaseUrl(this.network)}/pools/${poolId}`,
+            headers: { project_id: this.apiKey },
+        };
+
+        try {
+            const response = await axios(requestConfig);
+
+            const pool: Pool = {
+                ...response.data,
+            };
+
+            return pool;
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to fetch information for pool with id: ${poolId}`);
+        }
+    }
+
+    public async postTransactionSubmit(cbor: string): Promise<unknown[]> {
+        const requestConfig: AxiosRequestConfig = {
+            method: 'POST',
+            url: `${getBaseUrl(this.network)}/tx/submit`,
+            headers: { project_id: this.apiKey, 'Content-Type': 'application/cbor' },
+            data: JSON.stringify(cbor),
+        };
+        return [];
+    }
 }

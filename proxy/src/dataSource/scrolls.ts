@@ -1,50 +1,55 @@
-import * as redis from "redis";
-import { RedisClientType } from "@redis/client";
-import { AdaHandle } from "../model/scrolls";
+import * as redis from 'redis';
+import { RedisClientType } from '@redis/client';
+import { AdaHandle } from '../model/scrolls';
 
 export interface ScrollsDataSource {
-  getAddressForHandle(handle: string): Promise<AdaHandle[]>;
-  getLatestBlock(): Promise<unknown>;
+    getAddressForHandle(handle: string): Promise<AdaHandle[]>;
+    getLatestBlock(): Promise<unknown>;
 }
 
 export class ScrollsRedisDataSource implements ScrollsDataSource {
-  private client: RedisClientType;
+    private client: RedisClientType;
 
-  constructor(url: string) {
-    this.client = redis.createClient({
-      url,
-    });
-  }
-
-  async getAddressForHandle(handle: string): Promise<AdaHandle[]> {
-    if (!this.client.isReady) {
-      await this.client.connect();
+    constructor(url: string) {
+        this.client = redis.createClient({
+            url,
+        });
     }
 
-    const keys = (await this.client.sendCommand([
-      "keys",
-      `c.${handle}*`,
-    ])) as string[];
+    /**
+     * Returns an array of pairs <address, handle> for a given handle. 
+     * 
+     * Note: It includes all addresses matching a startWith expression
+     * @param handle 
+     * @returns 
+     */
+    async getAddressForHandle(handle: string): Promise<AdaHandle[]> {
+        if (!this.client.isReady) {
+            await this.client.connect();
+        }
 
-    if (!keys) return [];
+        const keys = (await this.client.sendCommand(['keys', `c.${handle}*`])) as string[];
 
-    const values = await this.client.mGet(keys);
+        if (!keys) return [];
 
-    let index = 0;
+        const values = await this.client.mGet(keys);
 
-    const result = keys.map((k) => {
-      const item: AdaHandle = {
-        key: k.split("c.")[1],
-        value: values[index] || "",
-      };
-      index += 1;
-      return item;
-    });
+        let index = 0;
 
-    return result;
-  }
+        const result = keys.map(k => {
+            const item: AdaHandle = {
+                key: k.split('c.')[1],
+                value: values[index] || '',
+            };
+            index += 1;
+            return item;
+        });
 
-  getLatestBlock(): Promise<unknown> {
-    throw new Error("Method not implemented.");
-  }
+        return result;
+    }
+
+    //@TODO: Implement a scroll reducer - check if we need a different redis client
+    getLatestBlock(): Promise<unknown> {
+        throw new Error('Method not implemented.');
+    }
 }
