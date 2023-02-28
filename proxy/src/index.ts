@@ -5,6 +5,7 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import { notFoundHandler, errorHandler } from "./api/middlewares";
 import blockfrostRouter from "./routers/blockfrostRouter";
+import scrollsRouter from './routers/scrollsRouter';
 
 // @TODO: Move this to an env variable / config
 const PORT = 8000;
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(helmet());
 
 app.use('/', blockfrostRouter);
-// app.use('/carp', carpController);
+app.use('/', scrollsRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
