@@ -6,61 +6,67 @@ import { Response, responseOk } from "../api/responses";
 
 /**
  * Handler for getting rewards history given a stake address
- * @param req 
- * @param res 
- * @param next 
- * @returns 
+ * @param req
+ * @param res
+ * @param next
+ * @returns
  */
-const getRewardsHistoryHandler: RequestHandler<
-  any,
-  any
-> = async (req, res, next): Promise<Response | void> => {
-    try {
-        const result = await blockfrostController.getRewardsHistory(
-            req.params.stakeAddress
-          );
-        return responseOk(res, result);
-    } catch(err: any) {
-        next(err);
-    }
-}
+const getRewardsHistoryHandler: RequestHandler<any, any> = async (
+  req,
+  res,
+  next
+): Promise<Response | void> => {
+  try {
+    const result = await blockfrostController.getRewardsHistory(
+      req.params.stakeAddress
+    );
+    return responseOk(res, result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 /**
  * Handler for getting info of a pool given its id
- * @param req 
- * @param res 
- * @param next 
- * @returns 
+ * @param req
+ * @param res
+ * @param next
+ * @returns
  */
-const getPoolHandler: RequestHandler<
-  any,
-  any
-> = async (req, res, next): Promise<Response | void> => {
-    try {
-        const result = await blockfrostController.getPoolInfo(req.params.poolId);
-        return responseOk(res, result);
-    } catch(err: any) {
-        next(err);
-    }
-}
+const getPoolHandler: RequestHandler<any, any> = async (
+  req,
+  res,
+  next
+): Promise<Response | void> => {
+  try {
+    const result = await blockfrostController.getPoolInfo(req.params.poolId);
+    return responseOk(res, result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Validator for tx submit
 const transactionSubmitValidator = [check("cbor", "cbor is required").exists()];
 
 /**
  * Handler for submitting a transaction cbor
- * @param req 
- * @param res 
- * @param next 
+ * @param req
+ * @param res
+ * @param next
  */
-const txSubmitHandler: RequestHandler<
-  any,
-  any,
-  { cbor: string; }
-> = async (req, res, next): Promise<Response | void> => {
-  const { cbor: string } = req.body;
-
-}
+const txSubmitHandler: RequestHandler<any, any, { cbor: string }> = async (
+  req,
+  res,
+  next
+): Promise<Response | void> => {
+  const { cbor } = req.body;
+  try {
+    const tx = await blockfrostController.postTransactionSubmit(cbor);
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Router definition
 const router = Router();
