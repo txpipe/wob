@@ -1,8 +1,11 @@
 use bollard::{
-    container::CreateContainerOptions, image::CreateImageOptions, service::ProgressDetail, Docker,
+    container::CreateContainerOptions,
+    image::CreateImageOptions,
+    service::{ContainerState, HealthStatusEnum, ProgressDetail},
+    Docker,
 };
 use futures::StreamExt;
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument, warn};
 
 use super::Error;
 use crate::config::Config;
@@ -98,6 +101,8 @@ impl Context {
             .await
             .map_err(Error::docker)?;
 
+        info!("container created");
+
         Ok(())
     }
 
@@ -117,6 +122,8 @@ impl Context {
             .await
             .map_err(Error::docker)?;
 
+        info!("container started");
+
         Ok(())
     }
 
@@ -124,6 +131,7 @@ impl Context {
         let name = &self.define_container_name(suffix);
 
         if !self.container_exists(name).await? {
+            info!("container doesn't exist, skipping");
             return Ok(());
         }
 
@@ -132,10 +140,51 @@ impl Context {
             .await
             .map_err(Error::docker)?;
 
+        info!("container stopped");
+
         self.docker
             .remove_container(name, None)
             .await
             .map_err(Error::docker)?;
+
+        info!("container removed");
+
+        Ok(())
+    }
+
+    pub async fn container_health(&self, suffix: &str) -> Result<(), Error> {
+        let name = self.define_container_name(suffix);
+
+        let info = self
+            .docker
+            .inspect_container(&name, None)
+            .await
+            .map_err(Error::docker)?;
+
+        if let Some(state) = info.state {
+            info!("container status: {:?}", state.status);
+
+            if let Some(health) = state.health {
+                match health.status {
+                    Some(HealthStatusEnum::HEALTHY) => info!("health check reporting healthy"),
+                    Some(HealthStatusEnum::STARTING) => warn!("health check starting"),
+                    Some(HealthStatusEnum::UNHEALTHY) => warn!("health check failing"),
+                    _ => info!("no health checks available"),
+                }
+            }
+
+            if state.dead.unwrap_or_default() {
+                warn!("container is dead");
+            }
+
+            if state.oom_killed.unwrap_or(false) {
+                warn!("container is out of memory");
+            }
+
+            if state.restarting.unwrap_or_default() {
+                warn!("container is restarting");
+            }
+        }
 
         Ok(())
     }

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tracing::instrument;
+use tracing::{info, instrument};
 
 use super::prelude::*;
 
@@ -47,8 +47,16 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     Ok(())
 }
 
+#[instrument(name = "ogmios", skip_all)]
 pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.container_down("ogmios").await?;
+
+    Ok(())
+}
+
+#[instrument(name = "ogmios", skip_all)]
+pub async fn health(ctx: &Context, config: &Config) -> Result<(), Error> {
+    ctx.container_health("ogmios").await?;
 
     Ok(())
 }

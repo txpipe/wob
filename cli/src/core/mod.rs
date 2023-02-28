@@ -78,3 +78,12 @@ pub async fn down(config: &Config) -> Result<(), Error> {
 
     Ok(())
 }
+
+#[instrument(skip_all)]
+pub async fn health(config: &Config) -> Result<(), Error> {
+    let ctx = Context::try_from(config.clone())?;
+
+    for_every_enabled_provider!(health, &ctx);
+
+    Ok(())
+}

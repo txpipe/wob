@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tracing::instrument;
+use tracing::{info, instrument};
 
 use super::prelude::*;
 
@@ -49,8 +49,16 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     Ok(())
 }
 
+#[instrument(name = "node", skip_all)]
 pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.container_down("node").await?;
+
+    Ok(())
+}
+
+#[instrument(name = "node", skip_all)]
+pub async fn health(ctx: &Context, config: &Config) -> Result<(), Error> {
+    ctx.container_health("node").await?;
 
     Ok(())
 }
