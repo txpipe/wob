@@ -5,6 +5,7 @@ import express, { Application } from "express";
 import helmet from "helmet";
 import { notFoundHandler, errorHandler } from "./api/middlewares";
 import blockfrostRouter from "./routers/blockfrostRouter";
+import carpRouter from "./routers/carpRouter";
 import ogmiosRouter from "./routers/ogmiosRouter";
 import scrollsRouter from "./routers/scrollsRouter";
 
@@ -16,10 +17,11 @@ const app: Application = express();
 app.use(express.json());
 app.use(helmet());
 
-// @TODO: Revist this and implement an easier to read method to know all routes.
+// @TODO: Revisit this and implement an easier to read method to know all routes.
 app.use("/", blockfrostRouter);
 app.use("/", scrollsRouter);
 app.use("/", ogmiosRouter);
+app.use("/", carpRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
