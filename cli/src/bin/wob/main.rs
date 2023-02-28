@@ -17,9 +17,10 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Pull(CommonArgs),
-    Prune(CommonArgs),
     Up(CommonArgs),
+    Health(CommonArgs),
     Down(CommonArgs),
+    Prune(CommonArgs),
 }
 
 #[derive(Args)]
@@ -50,14 +51,6 @@ async fn main() -> miette::Result<()> {
                 .into_diagnostic()
                 .wrap_err("pulling wallet resources failed")?;
         }
-        Commands::Prune(args) => {
-            let cfg = onebox::config::load(args.config.as_deref()).into_diagnostic()?;
-
-            onebox::prune(&cfg)
-                .await
-                .into_diagnostic()
-                .wrap_err("pruning wallet resources failed")?;
-        }
         Commands::Up(args) => {
             let cfg = onebox::config::load(args.config.as_deref()).into_diagnostic()?;
 
@@ -66,6 +59,14 @@ async fn main() -> miette::Result<()> {
                 .into_diagnostic()
                 .wrap_err("turning wallet up failed")?;
         }
+        Commands::Health(args) => {
+            let cfg = onebox::config::load(args.config.as_deref()).into_diagnostic()?;
+
+            onebox::health(&cfg)
+                .await
+                .into_diagnostic()
+                .wrap_err("checking wallet health failed")?;
+        }
         Commands::Down(args) => {
             let cfg = onebox::config::load(args.config.as_deref()).into_diagnostic()?;
 
@@ -73,6 +74,14 @@ async fn main() -> miette::Result<()> {
                 .await
                 .into_diagnostic()
                 .wrap_err("turning wallet down failed")?;
+        }
+        Commands::Prune(args) => {
+            let cfg = onebox::config::load(args.config.as_deref()).into_diagnostic()?;
+
+            onebox::prune(&cfg)
+                .await
+                .into_diagnostic()
+                .wrap_err("pruning wallet resources failed")?;
         }
     }
 
