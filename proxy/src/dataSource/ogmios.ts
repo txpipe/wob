@@ -33,7 +33,7 @@ export class OgmiosClientDataSource implements OgmiosDataSource {
         const context = await createInteractionContext(
             err => console.error(err),
             () => console.log('Connection closed.'),
-            { connection: { host: this.host, tls: false }},
+            { connection: { host: this.host, tls: false } },
         );
 
         this.client = await createStateQueryClient(context);

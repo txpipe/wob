@@ -1,9 +1,21 @@
 import { Router } from 'express';
 import { checkValidationHandler } from '../api/middlewares';
 import { getPoolHandler, getRewardsHistoryHandler, transactionSubmitValidator, txSubmitHandler } from './blockfrostRouter';
-import { postMetadataNftValidator, postMetadataNftHandler, postTransactionHistoryValidator, postTransactionHistoryHandler, postTransactionOutputValidator, postTransactionOutputHandler, postAddressUsedHandler, postAddressUsedValidator, postBlockLatestHandler, postBlockLatestValidator } from './carpRouter';
+import {
+    postMetadataNftValidator,
+    postMetadataNftHandler,
+    postTransactionHistoryValidator,
+    postTransactionHistoryHandler,
+    postTransactionOutputValidator,
+    postTransactionOutputHandler,
+    postAddressUsedHandler,
+    postAddressUsedValidator,
+    postBlockLatestHandler,
+    postBlockLatestValidator,
+} from './carpRouter';
 import { postDelegationsAndRewardsHandler, postDelegationsAndRewardsValidator } from './ogmiosRouter';
 import { getAddressForHandleHandler, getLatestBlockHandler } from './scrollsRouter';
+import { getTokenMetadata } from './tokenRegistryRouter';
 
 // Router definition
 const router = Router();
@@ -25,6 +37,7 @@ router.get('/block/', getLatestBlockHandler); // TODO: which one we keep
 
 // Assets
 router.post('/metadata/nft', postMetadataNftValidator, checkValidationHandler, postMetadataNftHandler);
+router.get('/metadata/:subject', getTokenMetadata);
 
 // Transaction routes
 router.post('/tx/history', postTransactionHistoryValidator, checkValidationHandler, postTransactionHistoryHandler);
