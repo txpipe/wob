@@ -8,17 +8,38 @@ export interface Block {
     indexInBlock: number;
 }
 
-export interface Asset {
+export interface AssetInput {
     policyId: string;
     assetNames: string[];
 }
 
 export interface CIP25 {
     policyId: string;
-    metadata: { [assetName: string]: string };
+    assets: { name: string; metadata: string }[];
 }
 
 export interface UtxoPointers {
-  index: number;
-  txHash: string;
+    index: number;
+    txHash: string;
+}
+
+export interface Transaction {
+    payload: string;
+    hash: string;
+}
+
+export interface TransactionData {
+    transaction: Transaction;
+    block: Block;
+}
+
+export interface Utxo {
+    index: number;
+    txHash: string;
+    payload: string;
+}
+
+export interface UtxoData {
+    utxo: Utxo;
+    block: Block;
 }

@@ -7,6 +7,7 @@ export type Network = 'cardano-mainnet' | 'cardano-preprod' | 'cardano-preview';
 
 /**
  * Returns the blockfrost base URL given the network we are connecting to
+ * @TODO check if this is required or if we just set the URL as part of the container envs
  * @param network
  * @returns
  */

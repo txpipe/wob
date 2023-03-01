@@ -1,5 +1,5 @@
 import { CarpAPIDataSource, CarpDataSource } from '../dataSource/carp';
-import { Asset, Block, CIP25, UtxoPointers } from '../model/carp';
+import { AssetInput, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
 
 class CarpController {
     private dataSource: CarpDataSource;
@@ -16,7 +16,7 @@ class CarpController {
         return this.dataSource.getBlockLatest(offset);
     }
 
-    public async getMetadataNft(assets: Asset[]): Promise<CIP25[]> {
+    public async getMetadataNft(assets: AssetInput[]): Promise<CIP25[]> {
         return this.dataSource.getMetadataNft(assets);
     }
 
@@ -27,11 +27,11 @@ class CarpController {
         untilBlock: string,
         limit?: number,
         relationFilter?: number,
-    ): Promise<unknown[]> {
+    ): Promise<TransactionData[]> {
         return this.getTransactionHistory(addresses, afterTx, afterBlock, untilBlock, limit, relationFilter);
     }
 
-    public async getTransactionOutput(utxoPointers: UtxoPointers[]): Promise<unknown[]> {
+    public async getTransactionOutput(utxoPointers: UtxoPointers[]): Promise<UtxoData[]> {
         return this.dataSource.getTransactionOutput(utxoPointers);
     }
 }
