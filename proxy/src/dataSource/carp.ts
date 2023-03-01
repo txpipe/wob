@@ -115,7 +115,7 @@ export class CarpAPIDataSource implements CarpDataSource {
                 return Object.entries(response.data.cip25).map(([policyId, assets]) => {
                     const cip25: CIP25 = {
                         policyId,
-                        assets: Object.entries(assets as { name: string, metadata: string }).map(([name, metadata]) => ({ name, metadata })),
+                        assets: Object.entries(assets as { name: string; metadata: string }).map(([name, metadata]) => ({ name, metadata })),
                     };
                     return cip25;
                 });
@@ -145,7 +145,6 @@ export class CarpAPIDataSource implements CarpDataSource {
         limit?: number,
         relationFilter?: number,
     ): Promise<TransactionData[]> {
-        
         const data = {
             addresses,
             after: {
@@ -166,7 +165,7 @@ export class CarpAPIDataSource implements CarpDataSource {
         try {
             const response = await axios(requestConfig);
             if (response.data.transactions) {
-                return response.data.transactions.map((t: TransactionData) => (t));
+                return response.data.transactions.map((t: TransactionData) => t);
             }
             return [];
         } catch (err: any) {
@@ -194,7 +193,7 @@ export class CarpAPIDataSource implements CarpDataSource {
             const response = await axios(requestConfig);
 
             if (response.data.utxos) {
-                return response.data.utxos.map((t: UtxoData) => (t));
+                return response.data.utxos.map((t: UtxoData) => t);
             }
 
             return [];

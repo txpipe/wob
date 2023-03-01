@@ -17,11 +17,11 @@ export class ScrollsRedisDataSource implements ScrollsDataSource {
     }
 
     /**
-     * Returns an array of pairs <address, handle> for a given handle. 
-     * 
+     * Returns an array of pairs <address, handle> for a given handle.
+     *
      * Note: It includes all addresses matching a startWith expression
-     * @param handle 
-     * @returns 
+     * @param handle
+     * @returns
      */
     async getAddressForHandle(handle: string): Promise<AdaHandle[]> {
         if (!this.client.isReady) {
