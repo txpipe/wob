@@ -25,7 +25,7 @@ function getBaseUrl(network: Network): string {
 export interface BlockfrostDataSource {
     getRewardsHistory(stakeAddress: string): Promise<unknown[]>;
     getPoolInfo(poolId: string): Promise<Pool | undefined>;
-    postTransactionSubmit(cbor: string): Promise<unknown[]>;
+    postTransactionSubmit(cbor: string): Promise<string>;
 }
 
 export class BlockfrostAPIDataSource implements BlockfrostDataSource {
@@ -75,13 +75,20 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
         }
     }
 
-    public async postTransactionSubmit(cbor: string): Promise<unknown[]> {
+    public async postTransactionSubmit(cbor: string): Promise<string> {
         const requestConfig: AxiosRequestConfig = {
             method: 'POST',
             url: `${getBaseUrl(this.network)}/tx/submit`,
             headers: { project_id: this.apiKey, 'Content-Type': 'application/cbor' },
             data: JSON.stringify(cbor),
         };
-        return [];
+        try {
+            const response = await axios(requestConfig);
+
+            // Returns the id of the submitted transaction
+            return response.data;
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to post transaction with cbor: ${cbor}`);
+        }
     }
 }

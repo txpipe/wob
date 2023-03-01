@@ -37,7 +37,10 @@ export const getPoolHandler: RequestHandler<any, any> = async (req, res, next): 
 };
 
 // Validator for tx submit
-export const transactionSubmitValidator = [check('cbor', 'cbor is required').exists()];
+export const transactionSubmitValidator = [
+    check('cbor', 'cbor is required').exists(),
+    check('cbor', 'cbor should be the encoded transaction in string format').isString(),
+];
 
 /**
  * Handler for submitting a transaction cbor

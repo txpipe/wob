@@ -7,9 +7,14 @@ import { AssetInput, UtxoPointers } from '../model/carp';
 
 export const postAddressUsedValidator = [
     check('addresses', 'addresses is required').exists(),
+    check('addresses', 'addresses should be an array').isArray(),
+    check('addresses.*', 'addresses should be an array of string').isString(),
     check('afterTx', 'afterTx is required').exists(),
+    check('afterTx', 'afterTx should be a string').isString(),
     check('afterBlock', 'afterBlock is required').exists(),
+    check('afterBlock', 'afterBlock should be a string').isString(),
     check('untilBlock', 'untilBlock is required').exists(),
+    check('untilBlock', 'untilBlock should be a string').isString(),
 ];
 
 export const postAddressUsedHandler: RequestHandler<any, any, { addresses: string[]; afterTx: string; afterBlock: string; untilBlock: string }> = async (
@@ -52,9 +57,14 @@ export const postMetadataNftHandler: RequestHandler<any, any, { assets: AssetInp
 
 export const postTransactionHistoryValidator = [
     check('addresses', 'addresses is required').exists(),
+    check('addresses', 'addresses should be an array').isArray(),
+    check('addresses.*', 'addresses should be an array of string').isString(),
     check('afterTx', 'afterTx is required').exists(),
+    check('afterTx', 'afterTx should be a string').isString(),
     check('afterBlock', 'afterBlock is required').exists(),
+    check('afterBlock', 'afterBlock should be a string').isString(),
     check('untilBlock', 'untilBlock is required').exists(),
+    check('untilBlock', 'untilBlock should be a string').isString(),
     check('limit', 'limit should be numeric').optional().isNumeric(),
     check('relationFilter', 'relationFilter should be numeric').optional().isNumeric(),
 ];

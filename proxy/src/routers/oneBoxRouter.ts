@@ -2,14 +2,14 @@ import { Router } from 'express';
 import { checkValidationHandler } from '../api/middlewares';
 import { getPoolHandler, getRewardsHistoryHandler, transactionSubmitValidator, txSubmitHandler } from './blockfrostRouter';
 import { postMetadataNftValidator, postMetadataNftHandler, postTransactionHistoryValidator, postTransactionHistoryHandler, postTransactionOutputValidator, postTransactionOutputHandler, postAddressUsedHandler, postAddressUsedValidator, postBlockLatestHandler, postBlockLatestValidator } from './carpRouter';
-import { getDelegationsAndRewardsHandler } from './ogmiosRouter';
+import { postDelegationsAndRewardsHandler, postDelegationsAndRewardsValidator } from './ogmiosRouter';
 import { getAddressForHandleHandler, getLatestBlockHandler } from './scrollsRouter';
 
 // Router definition
 const router = Router();
 
 // Account State
-router.get('/account/state/:stakeKeyHashes', getDelegationsAndRewardsHandler);
+router.post('/account/state/', postDelegationsAndRewardsValidator, checkValidationHandler, postDelegationsAndRewardsHandler);
 
 // Pool
 router.get('/pool/:poolId', getPoolHandler);

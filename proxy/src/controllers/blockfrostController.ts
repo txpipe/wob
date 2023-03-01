@@ -13,13 +13,11 @@ class BlockfrostController {
     }
 
     public async getPoolInfo(poolId: string): Promise<Pool | undefined> {
-        const result = await this.dataSource.getPoolInfo(poolId);
-        return result;
+        return await this.dataSource.getPoolInfo(poolId);
     }
 
-    public async postTransactionSubmit(cbor: string): Promise<unknown[]> {
-        const result = await this.dataSource.postTransactionSubmit(cbor);
-        return [];
+    public async postTransactionSubmit(cbor: string): Promise<string> {
+        return await this.dataSource.postTransactionSubmit(cbor);
     }
 }
 
