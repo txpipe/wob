@@ -1,8 +1,8 @@
-import { RequestHandler, Router } from "express";
-import { check } from "express-validator";
-import { blockfrostController } from "../controllers/blockfrostController";
-import { checkValidationHandler } from "../api/middlewares";
-import { Response, responseOk } from "../api/responses";
+import { RequestHandler, Router } from 'express';
+import { check } from 'express-validator';
+import { blockfrostController } from '../controllers/blockfrostController';
+import { checkValidationHandler } from '../api/middlewares';
+import { Response, responseOk } from '../api/responses';
 
 /**
  * Handler for getting rewards history given a stake address
@@ -11,19 +11,13 @@ import { Response, responseOk } from "../api/responses";
  * @param next
  * @returns
  */
-const getRewardsHistoryHandler: RequestHandler<any, any> = async (
-  req,
-  res,
-  next
-): Promise<Response | void> => {
-  try {
-    const result = await blockfrostController.getRewardsHistory(
-      req.params.stakeAddress
-    );
-    return responseOk(res, result);
-  } catch (err) {
-    next(err);
-  }
+export const getRewardsHistoryHandler: RequestHandler<any, any> = async (req, res, next): Promise<Response | void> => {
+    try {
+        const result = await blockfrostController.getRewardsHistory(req.params.stakeAddress);
+        return responseOk(res, result);
+    } catch (err) {
+        next(err);
+    }
 };
 
 /**
@@ -33,21 +27,17 @@ const getRewardsHistoryHandler: RequestHandler<any, any> = async (
  * @param next
  * @returns
  */
-const getPoolHandler: RequestHandler<any, any> = async (
-  req,
-  res,
-  next
-): Promise<Response | void> => {
-  try {
-    const result = await blockfrostController.getPoolInfo(req.params.poolId);
-    return responseOk(res, result);
-  } catch (err) {
-    next(err);
-  }
+export const getPoolHandler: RequestHandler<any, any> = async (req, res, next): Promise<Response | void> => {
+    try {
+        const result = await blockfrostController.getPoolInfo(req.params.poolId);
+        return responseOk(res, result);
+    } catch (err) {
+        next(err);
+    }
 };
 
 // Validator for tx submit
-const transactionSubmitValidator = [check("cbor", "cbor is required").exists()];
+export const transactionSubmitValidator = [check('cbor', 'cbor is required').exists()];
 
 /**
  * Handler for submitting a transaction cbor
@@ -55,29 +45,20 @@ const transactionSubmitValidator = [check("cbor", "cbor is required").exists()];
  * @param res
  * @param next
  */
-const txSubmitHandler: RequestHandler<any, any, { cbor: string }> = async (
-  req,
-  res,
-  next
-): Promise<Response | void> => {
-  const { cbor } = req.body;
-  try {
-    const tx = await blockfrostController.postTransactionSubmit(cbor);
-  } catch (err) {
-    next(err);
-  }
+export const txSubmitHandler: RequestHandler<any, any, { cbor: string }> = async (req, res, next): Promise<Response | void> => {
+    const { cbor } = req.body;
+    try {
+        const tx = await blockfrostController.postTransactionSubmit(cbor);
+    } catch (err) {
+        next(err);
+    }
 };
 
-// Router definition
+// Router definition - Not imported since we use only the oneBoxRouter
 const router = Router();
 
-router.get("/rewards/:stakeAddress", getRewardsHistoryHandler);
-router.get("/pool/:poolId", getPoolHandler);
-router.post(
-  "/tx/submit",
-  transactionSubmitValidator,
-  checkValidationHandler,
-  txSubmitHandler
-);
+router.get('/rewards/:stakeAddress', getRewardsHistoryHandler);
+router.get('/pool/:poolId', getPoolHandler);
+router.post('/tx/submit', transactionSubmitValidator, checkValidationHandler, txSubmitHandler);
 
 export default router;
