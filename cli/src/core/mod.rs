@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+
 use crate::config::Config;
 use futures::future::join_all;
 use miette::Diagnostic;
@@ -44,8 +46,8 @@ macro_rules! for_every_enabled_provider {
 }
 
 #[instrument(skip_all)]
-pub async fn pull(config: &Config) -> Result<(), Error> {
-    let ctx = Context::try_from(config.clone())?;
+pub async fn pull(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
+    let ctx = Context::new(config.clone(), working_dir.clone())?;
 
     for_every_enabled_provider!(pull, &ctx);
 
@@ -53,8 +55,8 @@ pub async fn pull(config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(skip_all)]
-pub async fn prune(config: &Config) -> Result<(), Error> {
-    let ctx = Context::try_from(config.clone())?;
+pub async fn prune(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
+    let ctx = Context::new(config.clone(), working_dir.clone())?;
 
     for_every_enabled_provider!(prune, &ctx);
 
@@ -62,8 +64,8 @@ pub async fn prune(config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(skip_all)]
-pub async fn up(config: &Config) -> Result<(), Error> {
-    let ctx = Context::try_from(config.clone())?;
+pub async fn up(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
+    let ctx = Context::new(config.clone(), working_dir.clone())?;
 
     for_every_enabled_provider!(up, &ctx);
 
@@ -71,8 +73,8 @@ pub async fn up(config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(skip_all)]
-pub async fn down(config: &Config) -> Result<(), Error> {
-    let ctx = Context::try_from(config.clone())?;
+pub async fn down(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
+    let ctx = Context::new(config.clone(), working_dir.clone())?;
 
     for_every_enabled_provider!(down, &ctx);
 
@@ -80,8 +82,8 @@ pub async fn down(config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(skip_all)]
-pub async fn health(config: &Config) -> Result<(), Error> {
-    let ctx = Context::try_from(config.clone())?;
+pub async fn health(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
+    let ctx = Context::new(config.clone(), working_dir.clone())?;
 
     for_every_enabled_provider!(health, &ctx);
 

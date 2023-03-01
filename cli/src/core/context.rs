@@ -1,7 +1,9 @@
+use std::path::PathBuf;
+
 use bollard::{
     container::CreateContainerOptions,
     image::CreateImageOptions,
-    service::{ContainerState, HealthStatusEnum, ProgressDetail},
+    service::{HealthStatusEnum, ProgressDetail},
     Docker,
 };
 use futures::StreamExt;
@@ -22,9 +24,20 @@ fn progress_detail_to_percent(x: ProgressDetail) -> f32 {
 pub struct Context {
     pub config: Config,
     pub docker: Docker,
+    pub working_dir: PathBuf,
 }
 
 impl Context {
+    pub fn new(config: Config, working_dir: PathBuf) -> Result<Self, Error> {
+        let docker = Docker::connect_with_socket_defaults().map_err(Error::docker)?;
+
+        Ok(Self {
+            config,
+            working_dir,
+            docker,
+        })
+    }
+
     pub async fn image_exists(&self, image_name: &str) -> Result<bool, Error> {
         Ok(self.docker.inspect_image(image_name).await.is_ok())
     }
@@ -187,14 +200,5 @@ impl Context {
         }
 
         Ok(())
-    }
-}
-
-impl TryFrom<Config> for Context {
-    type Error = Error;
-
-    fn try_from(config: Config) -> Result<Self, Error> {
-        let docker = Docker::connect_with_socket_defaults().map_err(Error::docker)?;
-        Ok(Context { config, docker })
     }
 }
