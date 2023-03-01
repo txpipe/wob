@@ -1,8 +1,9 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError } from '../api/errors';
+import { TokenInfo } from '../model/tokenRegistry';
 
 export interface TokenRegistryDataSource {
-    getTokenMetadata(subject: string): Promise<unknown>;
+    getTokenMetadata(subject: string): Promise<TokenInfo>;
 }
 
 export class TokenRegistryAPIDataSource implements TokenRegistryDataSource {
@@ -12,7 +13,7 @@ export class TokenRegistryAPIDataSource implements TokenRegistryDataSource {
         this.host = host;
     }
 
-    async getTokenMetadata(subject: string): Promise<unknown> {
+    async getTokenMetadata(subject: string): Promise<TokenInfo> {
         const requestConfig: AxiosRequestConfig = {
             method: 'GET',
             url: `${this.host}/metadata/${subject}`,
@@ -20,7 +21,10 @@ export class TokenRegistryAPIDataSource implements TokenRegistryDataSource {
 
         try {
             const response = await axios(requestConfig);
-            return;
+            const tokenInfo: TokenInfo = {
+                ...response.data
+            }
+            return tokenInfo;
         } catch (err: any) {
             throw new BadRequestError(err.response?.data?.message || `unable to fetch token metadata for subject: ${subject}`);
         }

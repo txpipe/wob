@@ -37,7 +37,7 @@ router.get('/block/', getLatestBlockHandler); // TODO: which one we keep
 
 // Assets
 router.post('/metadata/nft', postMetadataNftValidator, checkValidationHandler, postMetadataNftHandler);
-router.get('/metadata/:subject', getTokenMetadata);
+router.get('/metadata/:policyId/:name', getTokenMetadata);
 
 // Transaction routes
 router.post('/tx/history', postTransactionHistoryValidator, checkValidationHandler, postTransactionHistoryHandler);
