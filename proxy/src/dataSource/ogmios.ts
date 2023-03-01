@@ -1,25 +1,27 @@
 import { createInteractionContext, createStateQueryClient } from '@cardano-ogmios/client';
+import { delegationsAndRewards } from '@cardano-ogmios/client/dist/StateQuery';
+
+export type DelegationAndRewardsByAccount = Awaited<ReturnType<typeof delegationsAndRewards>>;
 
 export interface OgmiosDataSource {
-    // @TODO: Define types
-    getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<{ [k: string]: any }>;
+    getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<DelegationAndRewardsByAccount>;
 }
 
 export class OgmiosClientDataSource implements OgmiosDataSource {
     private host: string;
+    private port: number;
     private client: Awaited<ReturnType<typeof createStateQueryClient>> | undefined;
 
-    constructor(host: string) {
+    constructor(host: string, port: number) {
         this.host = host;
+        this.port = port;
     }
 
-    async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<{ [k: string]: any }> {
+    async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<DelegationAndRewardsByAccount> {
         await this.initialize();
         if (!this.client) return {};
 
-        const result = await this.client.delegationsAndRewards(stakeKeyHashes);
-        // @TODO: Map result
-        return result;
+        return await this.client.delegationsAndRewards(stakeKeyHashes);
     }
 
     /**
@@ -33,7 +35,7 @@ export class OgmiosClientDataSource implements OgmiosDataSource {
         const context = await createInteractionContext(
             err => console.error(err),
             () => console.log('Connection closed.'),
-            { connection: { host: this.host, tls: false } },
+            { connection: { host: this.host, port: this.port, tls: true } },
         );
 
         this.client = await createStateQueryClient(context);
