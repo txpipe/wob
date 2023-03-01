@@ -11,7 +11,7 @@ import { tokenRegistryController } from '../controllers/tokenRegistryController'
  */
 export const getTokenMetadata: RequestHandler<any, any> = async (req, res, next): Promise<Response | void> => {
     try {
-        const result = await tokenRegistryController.getTokenMetadata(req.params.subject);
+        const result = await tokenRegistryController.getTokenMetadata(req.params.policyId, req.params.name);
         return responseOk(res, result);
     } catch (err) {
         next(err);
@@ -21,6 +21,6 @@ export const getTokenMetadata: RequestHandler<any, any> = async (req, res, next)
 // Router definition - Not imported since we use only the oneBoxRouter
 const router = Router();
 
-router.get('/metadata/:subject', getTokenMetadata);
+router.get('/metadata/:policyId/:name', getTokenMetadata);
 
 export default router;

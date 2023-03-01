@@ -1,4 +1,5 @@
 import { TokenRegistryAPIDataSource, TokenRegistryDataSource } from '../dataSource/tokenRegistry';
+import { TokenInfo } from '../model/tokenRegistry';
 
 class TokenRegistryController {
     private dataSource: TokenRegistryDataSource;
@@ -7,8 +8,9 @@ class TokenRegistryController {
         this.dataSource = dataSource;
     }
 
-    public async getTokenMetadata(subject: string): Promise<unknown> {
-        return await this.dataSource.getTokenMetadata(subject);
+    public async getTokenMetadata(policyId: string, name: string): Promise<TokenInfo> {
+        // Sends the subject ast the concatenation of the policyId and asset name
+        return await this.dataSource.getTokenMetadata(`${policyId}${name}`);
     }
 }
 
