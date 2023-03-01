@@ -11,7 +11,7 @@ class CarpController {
     public async getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]> {
         return this.dataSource.getAddressUsed(addresses, afterTx, afterBlock, untilBlock);
     }
-    
+
     public async getBlockLatest(offset: number): Promise<Block | undefined> {
         return this.dataSource.getBlockLatest(offset);
     }

@@ -12,4 +12,4 @@ class OgmiosController {
     }
 }
 
-export const ogmiosController = new OgmiosController(new OgmiosClientDataSource(process.env.OGMIOS_HOST!, Number(process.env.OGMIOS_PORT!)));
+export const ogmiosController = new OgmiosController(new OgmiosClientDataSource(process.env.OGMIOS_HOST!));

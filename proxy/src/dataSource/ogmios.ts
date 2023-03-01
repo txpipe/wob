@@ -6,13 +6,11 @@ export interface OgmiosDataSource {
 }
 
 export class OgmiosClientDataSource implements OgmiosDataSource {
-    private port: number;
     private host: string;
     private client: Awaited<ReturnType<typeof createStateQueryClient>> | undefined;
 
-    constructor(host: string, port: number) {
+    constructor(host: string) {
         this.host = host;
-        this.port = port;
     }
 
     async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<{ [k: string]: any }> {
@@ -35,7 +33,7 @@ export class OgmiosClientDataSource implements OgmiosDataSource {
         const context = await createInteractionContext(
             err => console.error(err),
             () => console.log('Connection closed.'),
-            { connection: { host: this.host, port: this.port } },
+            { connection: { host: this.host, tls: false }},
         );
 
         this.client = await createStateQueryClient(context);
