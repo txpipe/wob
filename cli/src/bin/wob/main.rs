@@ -42,7 +42,7 @@ async fn main() -> miette::Result<()> {
     let dir = std::env::current_dir().into_diagnostic()?;
 
     match &cli.command {
-        Commands => {
+        Commands::Pull => {
             onebox::pull(&cfg, &dir)
                 .await
                 .into_diagnostic()
