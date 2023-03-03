@@ -1,6 +1,10 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError } from '../api/errors';
 import { Pool, Reward } from '../model/blockfrost';
+import { ProvideSingleton } from '../ioc';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Network specifics for blockfrost data source
 export type Network = 'cardano-mainnet' | 'cardano-preprod' | 'cardano-preview';
@@ -29,13 +33,14 @@ export interface BlockfrostDataSource {
     postTransactionSubmit(cbor: string): Promise<string>;
 }
 
+@ProvideSingleton(BlockfrostAPIDataSource)
 export class BlockfrostAPIDataSource implements BlockfrostDataSource {
     private apiKey: string;
     private network: Network;
 
-    constructor(apiKey: string, network: Network) {
-        this.apiKey = apiKey;
-        this.network = network;
+    constructor() {
+        this.apiKey = process.env.BLOCKFROST_API_KEY!;
+        this.network = process.env.BLOCKFROST_NETWORK! as Network;
     }
 
     public async getRewardsHistory(stakeAddress: string): Promise<Reward[]> {

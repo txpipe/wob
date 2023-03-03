@@ -1,6 +1,10 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError } from '../api/errors';
 import { AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
+import { ProvideSingleton } from '../ioc';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export interface CarpDataSource {
     getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]>;
@@ -17,11 +21,12 @@ export interface CarpDataSource {
     getTransactionOutput(utxoPointers: UtxoPointers[]): Promise<UtxoData[]>;
 }
 
+@ProvideSingleton(CarpAPIDataSource)
 export class CarpAPIDataSource implements CarpDataSource {
     private host: string;
 
-    constructor(host: string) {
-        this.host = host;
+    constructor() {
+        this.host = process.env.CARP_HOST!;
     }
 
     /**
@@ -94,7 +99,6 @@ export class CarpAPIDataSource implements CarpDataSource {
      * @param assets
      */
     public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]> {
-       
         const requestConfig: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.host}/metadata/nft`,

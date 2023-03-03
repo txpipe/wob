@@ -1,24 +1,17 @@
 import { Route, Controller, Tags, Post, Body } from 'tsoa';
-import { BlockfrostAPIDataSource, Network } from '../dataSource/blockfrost';
-import { CarpAPIDataSource } from '../dataSource/carp';
 import { TransactionData, UtxoData } from '../model/carp';
 import { TransactionHistoryRequestBody, TransactionOutputRequestBody, TransactionSubmitRequestBody } from '../model/requests';
 import { BlockfrostService } from '../services/blockfrostService';
 import { CarpService } from '../services/carpService';
+import { inject } from 'inversify';
+import { ProvideSingleton } from '../ioc';
 
 @Tags('Transaction')
 @Route('transaction')
+@ProvideSingleton(TransactionController)
 export class TransactionController extends Controller {
-    private carpService: CarpService;
-    private blockfrostService: BlockfrostService;
-
-    // TODO: Inject services in constructor
-    constructor() {
+    constructor(@inject(BlockfrostService) private blockfrostService: BlockfrostService, @inject(CarpService) private carpService: CarpService) {
         super();
-        this.carpService = new CarpService(new CarpAPIDataSource(process.env.CARP_HOST!));
-        this.blockfrostService = new BlockfrostService(
-            new BlockfrostAPIDataSource(process.env.BLOCKFROST_API_KEY!, process.env.BLOCKFROST_NETWORK as Network),
-        );
     }
 
     @Post('/history')

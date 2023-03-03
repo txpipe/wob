@@ -1,18 +1,23 @@
 import * as redis from 'redis';
 import { RedisClientType } from '@redis/client';
 import { AdaHandle } from '../model/scrolls';
+import { ProvideSingleton } from '../ioc';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export interface ScrollsDataSource {
     getAddressForHandle(handle: string): Promise<AdaHandle[]>;
     getLatestBlock(): Promise<unknown>;
 }
 
+@ProvideSingleton(ScrollsRedisDataSource)
 export class ScrollsRedisDataSource implements ScrollsDataSource {
     private client: RedisClientType;
 
-    constructor(url: string) {
+    constructor() {
         this.client = redis.createClient({
-            url,
+            url: process.env.SCROLLS_URL,
         });
     }
 

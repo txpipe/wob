@@ -4,8 +4,7 @@
     "target": "es6",
     "outDir": "./dist",
     "strict": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    /* Requires for importing package.json */
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "module": "commonjs",
@@ -17,5 +16,13 @@
     "types": [
       "reflect-metadata"
     ],
+    /* Additional Checks */
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noImplicitReturns": true,
+    // "noFallthroughCasesInSwitch": true,
+    /* Experimental Options */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
   }
 }

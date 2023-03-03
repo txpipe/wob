@@ -1,12 +1,11 @@
-import { CarpDataSource } from '../dataSource/carp';
+import { CarpAPIDataSource, CarpDataSource } from '../dataSource/carp';
 import { AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
+import { ProvideSingleton } from '../ioc';
+import { inject } from 'inversify';
 
+@ProvideSingleton(CarpService)
 export class CarpService {
-    private dataSource: CarpDataSource;
-
-    constructor(dataSource: CarpDataSource) {
-        this.dataSource = dataSource;
-    }
+    constructor(@inject(CarpAPIDataSource) private dataSource: CarpDataSource) {}
 
     public async getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]> {
         return this.dataSource.getAddressUsed(addresses, afterTx, afterBlock, untilBlock);
@@ -16,7 +15,7 @@ export class CarpService {
         return this.dataSource.getBlockLatest(offset);
     }
 
-    public async getMetadataNft(assets:{ [policyId: string]: AssetName[] }): Promise<CIP25[]> {
+    public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]> {
         return this.dataSource.getMetadataNft(assets);
     }
 

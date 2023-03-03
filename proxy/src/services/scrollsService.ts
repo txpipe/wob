@@ -1,12 +1,11 @@
-import { ScrollsDataSource } from '../dataSource/scrolls';
+import { ScrollsDataSource, ScrollsRedisDataSource } from '../dataSource/scrolls';
 import { AdaHandle } from '../model/scrolls';
+import { ProvideSingleton } from '../ioc';
+import { inject } from 'inversify';
 
+@ProvideSingleton(ScrollsService)
 export class ScrollsService {
-    private dataSource: ScrollsDataSource;
-
-    constructor(dataSource: ScrollsDataSource) {
-        this.dataSource = dataSource;
-    }
+    constructor(@inject(ScrollsRedisDataSource) private dataSource: ScrollsDataSource) {}
 
     public async getAddressForHandle(handle: string): Promise<AdaHandle[]> {
         return this.dataSource.getAddressForHandle(handle);

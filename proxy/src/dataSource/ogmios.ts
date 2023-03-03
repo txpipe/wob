@@ -1,5 +1,9 @@
 import { createInteractionContext, createStateQueryClient } from '@cardano-ogmios/client';
 import { delegationsAndRewards } from '@cardano-ogmios/client/dist/StateQuery';
+import { ProvideSingleton } from '../ioc';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export type DelegationAndRewardsByAccount = Awaited<ReturnType<typeof delegationsAndRewards>>;
 
@@ -7,14 +11,15 @@ export interface OgmiosDataSource {
     getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<DelegationAndRewardsByAccount>;
 }
 
+@ProvideSingleton(OgmiosClientDataSource)
 export class OgmiosClientDataSource implements OgmiosDataSource {
     private host: string;
     private port: number;
     private client: Awaited<ReturnType<typeof createStateQueryClient>> | undefined;
 
-    constructor(host: string, port: number) {
-        this.host = host;
-        this.port = port;
+    constructor() {
+        this.host = process.env.OGMIOS_HOST!;
+        this.port = Number(process.env.OGMIOS_PORT!);
     }
 
     async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<DelegationAndRewardsByAccount> {

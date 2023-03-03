@@ -1,19 +1,18 @@
-import { OgmiosDataSource } from '../dataSource/ogmios';
+import { OgmiosClientDataSource, OgmiosDataSource } from '../dataSource/ogmios';
 import { DelegationAndRewards } from '../model/ogmios';
+import { ProvideSingleton } from '../ioc';
+import { inject } from 'inversify';
 
+@ProvideSingleton(OgmiosService)
 export class OgmiosService {
-    private dataSource: OgmiosDataSource;
+    constructor(@inject(OgmiosClientDataSource) private dataSource: OgmiosDataSource) {}
 
-    constructor(dataSource: OgmiosDataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<{[account: string]: DelegationAndRewards}> {
+    public async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<{ [account: string]: DelegationAndRewards }> {
         const data = await this.dataSource.getDelegationsAndRewards(stakeKeyHashes);
-        const response: {[account: string]: DelegationAndRewards} = {};
+        const response: { [account: string]: DelegationAndRewards } = {};
         Object.entries(data).forEach(([account, delegationAndRewards]) => {
-            response[account] = { delegate: delegationAndRewards.delegate, rewards: Number(delegationAndRewards.rewards)}
-        })
+            response[account] = { delegate: delegationAndRewards.delegate, rewards: Number(delegationAndRewards.rewards) };
+        });
         return response;
     }
 }

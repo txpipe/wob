@@ -1,19 +1,15 @@
 import { Get, Route, Controller, Tags, Path } from 'tsoa';
-import { BlockfrostAPIDataSource, Network } from '../dataSource/blockfrost';
 import { Pool } from '../model/blockfrost';
 import { BlockfrostService } from '../services/blockfrostService';
+import { inject } from 'inversify';
+import { ProvideSingleton } from '../ioc';
 
 @Tags('Pool')
 @Route('pool')
+@ProvideSingleton(PoolController)
 export class PoolController extends Controller {
-    private blockfrostService: BlockfrostService;
-
-    // TODO: Inject services in constructor
-    constructor() {
+    constructor(@inject(BlockfrostService) private blockfrostService: BlockfrostService) {
         super();
-        this.blockfrostService = new BlockfrostService(
-            new BlockfrostAPIDataSource(process.env.BLOCKFROST_API_KEY!, process.env.BLOCKFROST_NETWORK as Network),
-        );
     }
 
     @Get('/{poolId}')
