@@ -1,0 +1,13 @@
+source:
+  type: oura
+  socket: /host/ipc/node.socket
+  bearer: Unix # or Tcp
+
+sink:
+  type: cardano
+  db:
+    type: postgres
+    database_url: postgresql://carp:1234@host.docker.internal:5432/carp_mainnet
+  network: mainnet # preview / preprod / testnet
+
+start_block:
