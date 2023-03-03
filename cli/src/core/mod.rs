@@ -42,6 +42,12 @@ macro_rules! for_every_enabled_provider {
                 crate::providers::ogmios::$func($ctx, i).await?;
             }
         }
+
+        if let Some(i) = &$ctx.config.carp {
+            if i.enabled {
+                crate::providers::carp::$func($ctx, i).await?;
+            }
+        }
     }};
 }
 
