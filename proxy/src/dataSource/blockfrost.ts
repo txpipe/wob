@@ -23,8 +23,9 @@ function getBaseUrl(network: Network): string {
 }
 
 export interface BlockfrostDataSource {
-    getRewardsHistory(stakeAddress: string): Promise<unknown[]>;
+    getRewardsHistory(stakeAddress: string): Promise<Reward[]>;
     getPoolInfo(poolId: string): Promise<Pool | undefined>;
+    getPools(): Promise<Pool[]>;
     postTransactionSubmit(cbor: string): Promise<string>;
 }
 
@@ -37,7 +38,7 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
         this.network = network;
     }
 
-    public async getRewardsHistory(stakeAddress: string): Promise<unknown[]> {
+    public async getRewardsHistory(stakeAddress: string): Promise<Reward[]> {
         // @TODO: Add pagination query params
         const requestConfig: AxiosRequestConfig = {
             method: 'GET',
@@ -72,6 +73,21 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
             return pool;
         } catch (err: any) {
             throw new BadRequestError(err.response?.data?.message || `unable to fetch information for pool with id: ${poolId}`);
+        }
+    }
+
+    public async getPools(): Promise<Pool[]> {
+        const requestConfig: AxiosRequestConfig = {
+            method: 'GET',
+            url: `${getBaseUrl(this.network)}/pools/`,
+            headers: { project_id: this.apiKey },
+        };
+
+        try {
+            const response = await axios(requestConfig);
+            return response.data;
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to fetch pools`);
         }
     }
 

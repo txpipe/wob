@@ -1,7 +1,7 @@
-import { ScrollsDataSource, ScrollsRedisDataSource } from '../dataSource/scrolls';
+import { ScrollsDataSource } from '../dataSource/scrolls';
 import { AdaHandle } from '../model/scrolls';
 
-class ScrollsController {
+export class ScrollsService {
     private dataSource: ScrollsDataSource;
 
     constructor(dataSource: ScrollsDataSource) {
@@ -17,5 +17,3 @@ class ScrollsController {
         return;
     }
 }
-
-export const scrollsController = new ScrollsController(new ScrollsRedisDataSource(process.env.SCROLLS_URL!));

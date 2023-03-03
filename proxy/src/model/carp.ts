@@ -8,10 +8,12 @@ export interface Block {
     indexInBlock: number;
 }
 
-export interface AssetInput {
-    policyId: string;
-    assetNames: string[];
+export interface AddressAfter {
+    tx: string;
+    block: string;
 }
+
+export type AssetName = string;
 
 export interface CIP25 {
     policyId: string;

@@ -1,7 +1,7 @@
-import { DelegationAndRewardsByAccount, OgmiosClientDataSource, OgmiosDataSource } from '../dataSource/ogmios';
+import { OgmiosDataSource } from '../dataSource/ogmios';
 import { DelegationAndRewards } from '../model/ogmios';
 
-class OgmiosController {
+export class OgmiosService {
     private dataSource: OgmiosDataSource;
 
     constructor(dataSource: OgmiosDataSource) {
@@ -17,5 +17,3 @@ class OgmiosController {
         return response;
     }
 }
-
-export const ogmiosController = new OgmiosController(new OgmiosClientDataSource(process.env.OGMIOS_HOST!, Number(process.env.OGMIOS_PORT!)));
