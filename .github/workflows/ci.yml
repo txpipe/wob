@@ -42,5 +42,5 @@ jobs:
         file: proxy/Dockerfile
         platforms: linux/amd64
         push: true
-        tags: ghcr.io/wob-proxy,ghcr.io/wob-proxy:${{ github.sha }}
+        tags: ghcr.io/txpipe/wob-proxy,ghcr.io/txpipe/wob-proxy:${{ github.sha }}
 
