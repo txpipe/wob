@@ -1,7 +1,3 @@
-use std::path::{Path, PathBuf};
-
-use crate::config::Config;
-use futures::future::join_all;
 use miette::Diagnostic;
 use thiserror::Error;
 
@@ -12,6 +8,9 @@ use tracing::instrument;
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum Error {
+    #[error("error interacting with file system")]
+    FileSystem(#[source] std::io::Error),
+
     #[error("error interacting with Docker daemon")]
     Docker(#[source] bollard::errors::Error),
 
@@ -20,6 +19,10 @@ pub enum Error {
 }
 
 impl Error {
+    pub fn file_system(err: std::io::Error) -> Self {
+        Error::FileSystem(err)
+    }
+
     pub fn docker(err: bollard::errors::Error) -> Self {
         Error::Docker(err)
     }
@@ -52,45 +55,42 @@ macro_rules! for_every_enabled_provider {
 }
 
 #[instrument(skip_all)]
-pub async fn pull(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
-    let ctx = Context::new(config.clone(), working_dir.clone())?;
+pub async fn init(ctx: &Context) -> Result<(), Error> {
+    for_every_enabled_provider!(init, &ctx);
 
+    Ok(())
+}
+
+#[instrument(skip_all)]
+pub async fn pull(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(pull, &ctx);
 
     Ok(())
 }
 
 #[instrument(skip_all)]
-pub async fn prune(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
-    let ctx = Context::new(config.clone(), working_dir.clone())?;
-
+pub async fn prune(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(prune, &ctx);
 
     Ok(())
 }
 
 #[instrument(skip_all)]
-pub async fn up(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
-    let ctx = Context::new(config.clone(), working_dir.clone())?;
-
+pub async fn up(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(up, &ctx);
 
     Ok(())
 }
 
 #[instrument(skip_all)]
-pub async fn down(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
-    let ctx = Context::new(config.clone(), working_dir.clone())?;
-
+pub async fn down(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(down, &ctx);
 
     Ok(())
 }
 
 #[instrument(skip_all)]
-pub async fn health(config: &Config, working_dir: &PathBuf) -> Result<(), Error> {
-    let ctx = Context::new(config.clone(), working_dir.clone())?;
-
+pub async fn health(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(health, &ctx);
 
     Ok(())

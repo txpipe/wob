@@ -4,30 +4,26 @@ use super::utils::*;
 
 #[tokio::test]
 async fn up_down_works() {
-    let config = test_config();
-    let dir = std::env::current_dir().unwrap();
-    let docker = Docker::connect_with_socket_defaults().unwrap();
+    let ctx = test_context();
 
-    crate::up(&config, &dir).await.unwrap();
-    assert_container_running(&docker, &config, "node").await;
-    assert_container_running(&docker, &config, "ogmios").await;
+    crate::up(&ctx).await.unwrap();
+    assert_container_running(&ctx, "node").await;
+    assert_container_running(&ctx, "ogmios").await;
 
-    crate::down(&config, &dir).await.unwrap();
-    assert_container_doesnt_exist(&docker, &config, "node").await;
-    assert_container_doesnt_exist(&docker, &config, "ogmios").await;
+    crate::down(&ctx).await.unwrap();
+    assert_container_doesnt_exist(&ctx, "node").await;
+    assert_container_doesnt_exist(&ctx, "ogmios").await;
 }
 
 #[tokio::test]
 async fn double_down_works() {
-    let config = test_config();
-    let dir = std::env::current_dir().unwrap();
-    let docker = Docker::connect_with_socket_defaults().unwrap();
+    let ctx = test_context();
 
-    crate::down(&config, &dir).await.unwrap();
-    assert_container_doesnt_exist(&docker, &config, "node").await;
-    assert_container_doesnt_exist(&docker, &config, "ogmios").await;
+    crate::down(&ctx).await.unwrap();
+    assert_container_doesnt_exist(&ctx, "node").await;
+    assert_container_doesnt_exist(&ctx, "ogmios").await;
 
-    crate::down(&config, &dir).await.unwrap();
-    assert_container_doesnt_exist(&docker, &config, "node").await;
-    assert_container_doesnt_exist(&docker, &config, "ogmios").await;
+    crate::down(&ctx).await.unwrap();
+    assert_container_doesnt_exist(&ctx, "node").await;
+    assert_container_doesnt_exist(&ctx, "ogmios").await;
 }

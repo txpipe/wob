@@ -1,6 +1,6 @@
-use std::str::FromStr;
+use std::path::PathBuf;
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use miette::{Context, IntoDiagnostic};
 use tracing::Level;
 use tracing_indicatif::IndicatifLayer;
@@ -15,10 +15,14 @@ struct Cli {
 
     #[arg(short, long)]
     config: Option<String>,
+
+    #[arg(short, long)]
+    static_files: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
+    Init,
     Pull,
     Up,
     Health,
@@ -39,35 +43,47 @@ async fn main() -> miette::Result<()> {
 
     let cli = Cli::parse();
     let cfg = onebox::config::load(cli.config.as_deref()).into_diagnostic()?;
-    let dir = std::env::current_dir().into_diagnostic()?;
+    let working_dir = std::env::current_dir().into_diagnostic()?;
+
+    let static_files_root = cli
+        .static_files
+        .unwrap_or_else(|| PathBuf::from("/etc/wob/files"));
+
+    let ctx = onebox::Context::new(cfg, working_dir, static_files_root)?;
 
     match &cli.command {
+        Commands::Init => {
+            onebox::init(&ctx)
+                .await
+                .into_diagnostic()
+                .wrap_err("initializing wallet config failed")?;
+        }
         Commands::Pull => {
-            onebox::pull(&cfg, &dir)
+            onebox::pull(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("pulling wallet resources failed")?;
         }
         Commands::Up => {
-            onebox::up(&cfg, &dir)
+            onebox::up(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("turning wallet up failed")?;
         }
         Commands::Health => {
-            onebox::health(&cfg, &dir)
+            onebox::health(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("checking wallet health failed")?;
         }
         Commands::Down => {
-            onebox::down(&cfg, &dir)
+            onebox::down(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("turning wallet down failed")?;
         }
         Commands::Prune => {
-            onebox::prune(&cfg, &dir)
+            onebox::prune(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("pruning wallet resources failed")?;
