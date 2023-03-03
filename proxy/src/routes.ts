@@ -55,6 +55,31 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CredentialHex": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{"pattern":{"value":"[0-9a-fA-F]{64}"}}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Bech32FullAddress": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Bech32Credential": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Base58Address": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Address": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"ref":"CredentialHex"},{"ref":"Bech32FullAddress"},{"ref":"Bech32Credential"},{"ref":"Base58Address"}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "AddressAfter": {
         "dataType": "refObject",
         "properties": {
@@ -66,7 +91,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "AddressUsedRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"untilBlock":{"dataType":"string","required":true},"after":{"ref":"AddressAfter","required":true},"addresses":{"dataType":"array","array":{"dataType":"string"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"untilBlock":{"dataType":"string","required":true},"after":{"ref":"AddressAfter","required":true},"addresses":{"dataType":"array","array":{"dataType":"refAlias","ref":"Address"},"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Signature": {
@@ -152,18 +177,18 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AssetName": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{"pattern":{"value":"[0-9a-fA-F]{0,64}"}}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CIP25": {
         "dataType": "refObject",
         "properties": {
             "policyId": {"dataType":"string","required":true},
-            "assets": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"metadata":{"dataType":"string","required":true},"name":{"dataType":"string","required":true}}},"required":true},
+            "assets": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"metadata":{"dataType":"string","required":true},"name":{"ref":"AssetName","required":true}}},"required":true},
         },
         "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "AssetName": {
-        "dataType": "refAlias",
-        "type": {"dataType":"string","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "MetadataNftRequestBody": {
@@ -214,8 +239,8 @@ const models: TsoaRoute.Models = {
     "Transaction": {
         "dataType": "refObject",
         "properties": {
-            "payload": {"dataType":"string","required":true},
-            "hash": {"dataType":"string","required":true},
+            "payload": {"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]*"}}},
+            "hash": {"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]{64}"}}},
         },
         "additionalProperties": false,
     },
@@ -231,7 +256,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransactionHistoryRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"relationFilter":{"dataType":"double"},"limit":{"dataType":"double"},"untilBlock":{"dataType":"string","required":true},"after":{"ref":"AddressAfter","required":true},"addresses":{"dataType":"array","array":{"dataType":"string"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"relationFilter":{"dataType":"double"},"limit":{"dataType":"double"},"untilBlock":{"dataType":"string","required":true},"after":{"ref":"AddressAfter","required":true},"addresses":{"dataType":"array","array":{"dataType":"refAlias","ref":"Address"},"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Utxo": {
@@ -239,7 +264,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "index": {"dataType":"double","required":true},
             "txHash": {"dataType":"string","required":true},
-            "payload": {"dataType":"string","required":true},
+            "payload": {"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]*"}}},
         },
         "additionalProperties": false,
     },
@@ -253,18 +278,18 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "UtxoPointers": {
+    "UtxoPointer": {
         "dataType": "refObject",
         "properties": {
+            "txHash": {"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]{64}"}}},
             "index": {"dataType":"double","required":true},
-            "txHash": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransactionOutputRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"utxoPointers":{"dataType":"array","array":{"dataType":"refObject","ref":"UtxoPointers"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"utxoPointers":{"dataType":"array","array":{"dataType":"refObject","ref":"UtxoPointer"},"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransactionSubmitRequestBody": {
