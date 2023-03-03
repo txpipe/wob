@@ -1,23 +1,21 @@
 import { Get, Route, Controller, Path, Tags, Post, Body } from 'tsoa';
-import { CarpAPIDataSource } from '../dataSource/carp';
-import { TokenRegistryAPIDataSource } from '../dataSource/tokenRegistry';
 import { MetadataNftRequestBody } from '../model/requests';
 import { CIP25 } from '../model/carp';
 import { TokenInfo } from '../model/tokenRegistry';
 import { CarpService } from '../services/carpService';
 import { TokenRegistryService } from '../services/tokenRegistryService';
+import { inject } from 'inversify';
+import { ProvideSingleton } from '../ioc';
 
 @Tags('Assets')
 @Route('assets')
+@ProvideSingleton(AssetsController)
 export class AssetsController extends Controller {
-    private carpService: CarpService;
-    private tokenRegistryService: TokenRegistryService;
-
-    // TODO: Inject services in constructor
-    constructor() {
+    constructor(
+        @inject(TokenRegistryService) private tokenRegistryService: TokenRegistryService,
+        @inject(CarpService) private carpService: CarpService,
+    ) {
         super();
-        this.carpService = new CarpService(new CarpAPIDataSource(process.env.CARP_HOST!));
-        this.tokenRegistryService = new TokenRegistryService(new TokenRegistryAPIDataSource(process.env.TOKEN_REGISTRY_URL!));
     }
 
     @Get('/metadata/{policyId}/{assetName}')

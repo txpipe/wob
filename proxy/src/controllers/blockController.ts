@@ -1,17 +1,15 @@
 import { Get, Route, Controller, Tags, Query } from 'tsoa';
-import { CarpAPIDataSource } from '../dataSource/carp';
 import { Block } from '../model/carp';
 import { CarpService } from '../services/carpService';
+import { inject } from 'inversify';
+import { ProvideSingleton } from '../ioc';
 
 @Tags('Block')
 @Route('block')
+@ProvideSingleton(BlockController)
 export class BlockController extends Controller {
-    private carpService: CarpService;
-
-    // TODO: Inject services in constructor
-    constructor() {
+    constructor(@inject(CarpService) private carpService: CarpService) {
         super();
-        this.carpService = new CarpService(new CarpAPIDataSource(process.env.CARP_HOST!));
     }
 
     @Get('/latest')

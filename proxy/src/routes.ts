@@ -14,6 +14,8 @@ import { BlockController } from './controllers/blockController';
 import { PoolController } from './controllers/poolController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TransactionController } from './controllers/transactionController';
+import { iocContainer } from './ioc';
+import type { IocContainer, IocContainerFactory } from '@tsoa/runtime';
 import type { RequestHandler, Router } from 'express';
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -284,7 +286,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(AccountController)),
             ...(fetchMiddlewares<RequestHandler>(AccountController.prototype.getDelegationAndRewards)),
 
-            function AccountController_getDelegationAndRewards(request: any, response: any, next: any) {
+            async function AccountController_getDelegationAndRewards(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"AccountDelegationAndRewardsRequestBody"},
             };
@@ -295,7 +297,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new AccountController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<AccountController>(AccountController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getDelegationAndRewards.apply(controller, validatedArgs as any);
@@ -309,7 +316,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(AddressController)),
             ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.getAddressForHandler)),
 
-            function AddressController_getAddressForHandler(request: any, response: any, next: any) {
+            async function AddressController_getAddressForHandler(request: any, response: any, next: any) {
             const args = {
                     handle: {"in":"path","name":"handle","required":true,"dataType":"string"},
             };
@@ -320,7 +327,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new AddressController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<AddressController>(AddressController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getAddressForHandler.apply(controller, validatedArgs as any);
@@ -334,7 +346,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(AddressController)),
             ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.getRewards)),
 
-            function AddressController_getRewards(request: any, response: any, next: any) {
+            async function AddressController_getRewards(request: any, response: any, next: any) {
             const args = {
                     stakeAddress: {"in":"path","name":"stakeAddress","required":true,"dataType":"string"},
             };
@@ -345,7 +357,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new AddressController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<AddressController>(AddressController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getRewards.apply(controller, validatedArgs as any);
@@ -359,7 +376,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(AddressController)),
             ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.getAddressUsed)),
 
-            function AddressController_getAddressUsed(request: any, response: any, next: any) {
+            async function AddressController_getAddressUsed(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"AddressUsedRequestBody"},
             };
@@ -370,7 +387,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new AddressController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<AddressController>(AddressController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getAddressUsed.apply(controller, validatedArgs as any);
@@ -384,7 +406,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(AssetsController)),
             ...(fetchMiddlewares<RequestHandler>(AssetsController.prototype.getMetadata)),
 
-            function AssetsController_getMetadata(request: any, response: any, next: any) {
+            async function AssetsController_getMetadata(request: any, response: any, next: any) {
             const args = {
                     policyId: {"in":"path","name":"policyId","required":true,"dataType":"string"},
                     assetName: {"in":"path","name":"assetName","required":true,"dataType":"string"},
@@ -396,7 +418,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new AssetsController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<AssetsController>(AssetsController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getMetadata.apply(controller, validatedArgs as any);
@@ -410,7 +437,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(AssetsController)),
             ...(fetchMiddlewares<RequestHandler>(AssetsController.prototype.getMetadataNft)),
 
-            function AssetsController_getMetadataNft(request: any, response: any, next: any) {
+            async function AssetsController_getMetadataNft(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"MetadataNftRequestBody"},
             };
@@ -421,7 +448,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new AssetsController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<AssetsController>(AssetsController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getMetadataNft.apply(controller, validatedArgs as any);
@@ -435,7 +467,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(BlockController)),
             ...(fetchMiddlewares<RequestHandler>(BlockController.prototype.getLatest)),
 
-            function BlockController_getLatest(request: any, response: any, next: any) {
+            async function BlockController_getLatest(request: any, response: any, next: any) {
             const args = {
                     offset: {"in":"query","name":"offset","required":true,"dataType":"double"},
             };
@@ -446,7 +478,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new BlockController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<BlockController>(BlockController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getLatest.apply(controller, validatedArgs as any);
@@ -460,7 +497,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(PoolController)),
             ...(fetchMiddlewares<RequestHandler>(PoolController.prototype.getPoolInfo)),
 
-            function PoolController_getPoolInfo(request: any, response: any, next: any) {
+            async function PoolController_getPoolInfo(request: any, response: any, next: any) {
             const args = {
                     poolId: {"in":"path","name":"poolId","required":true,"dataType":"string"},
             };
@@ -471,7 +508,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new PoolController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<PoolController>(PoolController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getPoolInfo.apply(controller, validatedArgs as any);
@@ -485,7 +527,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(PoolController)),
             ...(fetchMiddlewares<RequestHandler>(PoolController.prototype.getPools)),
 
-            function PoolController_getPools(request: any, response: any, next: any) {
+            async function PoolController_getPools(request: any, response: any, next: any) {
             const args = {
             };
 
@@ -495,7 +537,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new PoolController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<PoolController>(PoolController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getPools.apply(controller, validatedArgs as any);
@@ -509,7 +556,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(TransactionController)),
             ...(fetchMiddlewares<RequestHandler>(TransactionController.prototype.getTransactionHistory)),
 
-            function TransactionController_getTransactionHistory(request: any, response: any, next: any) {
+            async function TransactionController_getTransactionHistory(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"TransactionHistoryRequestBody"},
             };
@@ -520,7 +567,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new TransactionController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<TransactionController>(TransactionController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getTransactionHistory.apply(controller, validatedArgs as any);
@@ -534,7 +586,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(TransactionController)),
             ...(fetchMiddlewares<RequestHandler>(TransactionController.prototype.getTransactionOutput)),
 
-            function TransactionController_getTransactionOutput(request: any, response: any, next: any) {
+            async function TransactionController_getTransactionOutput(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"TransactionOutputRequestBody"},
             };
@@ -545,7 +597,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new TransactionController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<TransactionController>(TransactionController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.getTransactionOutput.apply(controller, validatedArgs as any);
@@ -559,7 +616,7 @@ export function RegisterRoutes(app: Router) {
             ...(fetchMiddlewares<RequestHandler>(TransactionController)),
             ...(fetchMiddlewares<RequestHandler>(TransactionController.prototype.transactionSubmit)),
 
-            function TransactionController_transactionSubmit(request: any, response: any, next: any) {
+            async function TransactionController_transactionSubmit(request: any, response: any, next: any) {
             const args = {
                     requestBody: {"in":"body","name":"requestBody","required":true,"ref":"TransactionSubmitRequestBody"},
             };
@@ -570,7 +627,12 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
-                const controller = new TransactionController();
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<TransactionController>(TransactionController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
 
 
               const promise = controller.transactionSubmit.apply(controller, validatedArgs as any);

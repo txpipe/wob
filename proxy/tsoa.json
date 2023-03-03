@@ -18,6 +18,7 @@
       }
     },
     "routes": {
+      "iocModule": "src/ioc",
       "routesDir": "src"
     }
   }

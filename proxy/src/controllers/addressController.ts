@@ -1,30 +1,23 @@
 import { Get, Route, Controller, Path, Tags, Post, Body } from 'tsoa';
-import { BlockfrostAPIDataSource, Network } from '../dataSource/blockfrost';
-import { CarpAPIDataSource } from '../dataSource/carp';
-import { ScrollsRedisDataSource } from '../dataSource/scrolls';
 import { AddressUsedRequestBody } from '../model/requests';
 import { Reward } from '../model/blockfrost';
 import { AdaHandle } from '../model/scrolls';
 import { BlockfrostService } from '../services/blockfrostService';
 import { CarpService } from '../services/carpService';
 import { ScrollsService } from '../services/scrollsService';
+import { inject } from 'inversify';
+import { ProvideSingleton } from '../ioc';
 
 @Tags('Address')
 @Route('address')
+@ProvideSingleton(AddressController)
 export class AddressController extends Controller {
-    private scrollsService: ScrollsService;
-    private carpService: CarpService;
-    private blockfrostService: BlockfrostService;
-
-    // TODO: Inject services in constructor
-    constructor() {
+    constructor(
+        @inject(ScrollsService) private scrollsService: ScrollsService,
+        @inject(BlockfrostService) private blockfrostService: BlockfrostService,
+        @inject(CarpService) private carpService: CarpService,
+    ) {
         super();
-
-        this.scrollsService = new ScrollsService(new ScrollsRedisDataSource(process.env.SCROLLS_URL!));
-        this.carpService = new CarpService(new CarpAPIDataSource(process.env.CARP_HOST!));
-        this.blockfrostService = new BlockfrostService(
-            new BlockfrostAPIDataSource(process.env.BLOCKFROST_API_KEY!, process.env.BLOCKFROST_NETWORK as Network),
-        );
     }
 
     @Get('/handle/{handle}')
