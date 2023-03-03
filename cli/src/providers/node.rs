@@ -35,12 +35,36 @@ pub async fn prune(ctx: &Context, config: &Config) -> Result<(), Error> {
 
 #[instrument(name = "node", skip_all)]
 pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
+
+    let port_bindings = ctx.build_port_bindings(vec![("3000", "tcp"), ("3307", "tcp"), ("12798", "tcp")]);
+    
+    let host_config = HostConfig {
+        mounts: Some(ctx.define_mounts()),
+        port_bindings: Some(port_bindings),
+        restart_policy: Some(RestartPolicy { name: Some(RestartPolicyNameEnum::UNLESS_STOPPED), maximum_retry_count: Some(0) }),
+        ..Default::default()
+    };
+
     let image = define_image(config);
 
     let spec = ContainerSpec {
         image: Some(image),
-        cmd: None,
+        entrypoint: Some(vec![
+            "cardano-node",
+            "run",
+            "--config",
+            "/host/configs/preview/config.json",
+            "--topology",
+            "/host/configs/preview/topology.json",
+            "--database-path",
+            "/host/node-db",
+            "--socket-path",
+            "/host/ipc/node.socket",
+            "--port",
+            "3000"
+        ]),        
         env: Some(vec!["NETWORK=preview"]),
+        host_config: Some(host_config),
         ..Default::default()
     };
 

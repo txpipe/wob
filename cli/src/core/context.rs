@@ -1,9 +1,9 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, collections::{HashMap, hash_map::RandomState}};
 
 use bollard::{
     container::CreateContainerOptions,
     image::CreateImageOptions,
-    service::{HealthStatusEnum, ProgressDetail},
+    service::{HealthStatusEnum, ProgressDetail, Mount, MountTypeEnum, PortBinding},
     Docker,
 };
 use futures::StreamExt;
@@ -121,6 +121,36 @@ impl Context {
 
     fn define_container_name(&self, suffix: &str) -> String {
         format!("{}_{}", self.config.name, suffix)
+    }
+
+    pub fn build_port_bindings(&self, ports: Vec<(&str, &str)>) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
+        let mut port_bindings = ::std::collections::HashMap::new();
+
+        for port in ports.into_iter() {
+            let (port_number, port_type) = port;
+            port_bindings.insert(
+                String::from(format!("{}/{}", port_number, port_type)),
+                Some(vec![PortBinding {
+                    host_ip: Some(String::from("127.0.0.1")),
+                    host_port: Some(String::from(port_number.to_owned())),
+                }]),
+            );
+        }
+
+        return port_bindings;
+    }   
+
+    pub fn define_mounts(&self) -> Vec<Mount> {
+       let mounts = vec![
+            Mount {
+                target: Some(String::from("/host")),
+                source: Some(String::from(self.working_dir.to_string_lossy())),
+                typ: Some(MountTypeEnum::BIND),
+                consistency: Some(String::from("default")),
+                ..Default::default()
+            }
+        ];
+        return mounts;
     }
 
     pub async fn container_up(&self, suffix: &str, spec: ContainerSpec<&str>) -> Result<(), Error> {
