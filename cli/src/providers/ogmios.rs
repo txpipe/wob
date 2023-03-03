@@ -37,8 +37,26 @@ pub async fn prune(ctx: &Context, config: &Config) -> Result<(), Error> {
 pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
+    let port_bindings = ctx.build_port_bindings(vec![("1337", "tcp")]);
+
+    let host_config = HostConfig {
+        mounts: Some(ctx.define_mounts()),
+        port_bindings: Some(port_bindings),
+        restart_policy: Some(RestartPolicy { name: Some(RestartPolicyNameEnum::UNLESS_STOPPED), maximum_retry_count: Some(0) }),
+        ..Default::default()
+    };
+
     let spec = ContainerSpec {
         image: Some(image_name),
+        cmd: Some(vec![
+            "--node-socket",
+            "/host/ipc/node.socket",
+            "--node-config",
+            "/host/configs/preview/config.json",
+            "--host",
+            "0.0.0.0",
+        ]),
+        host_config: Some(host_config), 
         ..Default::default()
     };
 
