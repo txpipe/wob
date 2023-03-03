@@ -16,6 +16,11 @@ fn define_image(config: &Config) -> &str {
 }
 
 #[instrument(name = "carp", skip_all)]
+pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
+    Ok(())
+}
+
+#[instrument(name = "carp", skip_all)]
 pub async fn pull(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 

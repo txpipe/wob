@@ -16,6 +16,11 @@ fn define_image(config: &Config) -> &str {
 }
 
 #[instrument(name = "ogmios", skip_all)]
+pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
+    Ok(())
+}
+
+#[instrument(name = "ogmios", skip_all)]
 pub async fn pull(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
@@ -42,7 +47,10 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let host_config = HostConfig {
         mounts: Some(ctx.define_mounts()),
         port_bindings: Some(port_bindings),
-        restart_policy: Some(RestartPolicy { name: Some(RestartPolicyNameEnum::UNLESS_STOPPED), maximum_retry_count: Some(0) }),
+        restart_policy: Some(RestartPolicy {
+            name: Some(RestartPolicyNameEnum::UNLESS_STOPPED),
+            maximum_retry_count: Some(0),
+        }),
         ..Default::default()
     };
 
@@ -56,7 +64,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
             "--host",
             "0.0.0.0",
         ]),
-        host_config: Some(host_config), 
+        host_config: Some(host_config),
         ..Default::default()
     };
 

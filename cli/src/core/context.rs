@@ -1,9 +1,12 @@
-use std::{path::PathBuf, collections::{HashMap, hash_map::RandomState}};
+use std::{
+    collections::{hash_map::RandomState, HashMap},
+    path::{Path, PathBuf},
+};
 
 use bollard::{
     container::CreateContainerOptions,
     image::CreateImageOptions,
-    service::{HealthStatusEnum, ProgressDetail, Mount, MountTypeEnum, PortBinding},
+    service::{HealthStatusEnum, Mount, MountTypeEnum, PortBinding, ProgressDetail},
     Docker,
 };
 use futures::StreamExt;
@@ -25,17 +28,27 @@ pub struct Context {
     pub config: Config,
     pub docker: Docker,
     pub working_dir: PathBuf,
+    pub static_files_root: PathBuf,
 }
 
 impl Context {
-    pub fn new(config: Config, working_dir: PathBuf) -> Result<Self, Error> {
+    pub fn new(
+        config: Config,
+        working_dir: PathBuf,
+        static_files_root: PathBuf,
+    ) -> Result<Self, Error> {
         let docker = Docker::connect_with_socket_defaults().map_err(Error::docker)?;
 
         Ok(Self {
             config,
-            working_dir,
             docker,
+            working_dir,
+            static_files_root,
         })
+    }
+
+    pub(crate) fn docker_client(&self) -> &Docker {
+        &self.docker
     }
 
     pub async fn image_exists(&self, image_name: &str) -> Result<bool, Error> {
@@ -123,7 +136,10 @@ impl Context {
         format!("{}_{}", self.config.name, suffix)
     }
 
-    pub fn build_port_bindings(&self, ports: Vec<(&str, &str)>) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
+    pub fn build_port_bindings(
+        &self,
+        ports: Vec<(&str, &str)>,
+    ) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
         let mut port_bindings = ::std::collections::HashMap::new();
 
         for port in ports.into_iter() {
@@ -138,18 +154,16 @@ impl Context {
         }
 
         return port_bindings;
-    }   
+    }
 
     pub fn define_mounts(&self) -> Vec<Mount> {
-       let mounts = vec![
-            Mount {
-                target: Some(String::from("/host")),
-                source: Some(String::from(self.working_dir.to_string_lossy())),
-                typ: Some(MountTypeEnum::BIND),
-                consistency: Some(String::from("default")),
-                ..Default::default()
-            }
-        ];
+        let mounts = vec![Mount {
+            target: Some(String::from("/host")),
+            source: Some(String::from(self.working_dir.to_string_lossy())),
+            typ: Some(MountTypeEnum::BIND),
+            consistency: Some(String::from("default")),
+            ..Default::default()
+        }];
         return mounts;
     }
 
@@ -228,6 +242,77 @@ impl Context {
                 warn!("container is restarting");
             }
         }
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub fn ensure_host_dir(&self, rel_path: PathBuf) -> Result<(), Error> {
+        let mut target = self.working_dir.clone();
+        target.push(rel_path);
+
+        if target.is_dir() {
+            debug!("dir already exists");
+            return Ok(());
+        }
+
+        std::fs::create_dir(target).map_err(Error::file_system)?;
+        info!("host dir created");
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub fn import_static_file(
+        &self,
+        rel_source: PathBuf,
+        rel_target: PathBuf,
+    ) -> Result<(), Error> {
+        let mut target = self.working_dir.clone();
+        target.push(rel_target);
+
+        if target.is_file() {
+            debug!("file already exists");
+            return Ok(());
+        }
+
+        let mut source = self.static_files_root.clone();
+        source.push(rel_source);
+
+        std::fs::copy(source, target).map_err(Error::file_system)?;
+        info!("static file imported");
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub fn remove_host_file(&self, rel_path: PathBuf) -> Result<(), Error> {
+        let mut target = self.working_dir.clone();
+        target.push(rel_path.clone());
+
+        if !target.is_file() {
+            debug!("file already removed");
+            return Ok(());
+        }
+
+        std::fs::remove_file(target).map_err(Error::file_system)?;
+        info!("host file removed");
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub fn remove_host_dir(&self, rel_path: PathBuf) -> Result<(), Error> {
+        let mut target = self.working_dir.clone();
+        target.push(rel_path.clone());
+
+        if !target.is_dir() {
+            debug!("dir already removed");
+            return Ok(());
+        }
+
+        std::fs::remove_dir(target).map_err(Error::file_system)?;
+        info!("host dir removed");
 
         Ok(())
     }
