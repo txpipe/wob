@@ -1,14 +1,14 @@
-import { BlockfrostAPIDataSource, BlockfrostDataSource, Network } from '../dataSource/blockfrost';
-import { Pool } from '../model/blockfrost';
+import { BlockfrostDataSource } from '../dataSource/blockfrost';
+import { Pool, Reward } from '../model/blockfrost';
 
-class BlockfrostController {
+export class BlockfrostService {
     private dataSource: BlockfrostDataSource;
 
     constructor(dataSource: BlockfrostDataSource) {
         this.dataSource = dataSource;
     }
 
-    public async getRewardsHistory(stakeAddress: string): Promise<unknown[]> {
+    public async getRewardsHistory(stakeAddress: string): Promise<Reward[]> {
         return this.dataSource.getRewardsHistory(stakeAddress);
     }
 
@@ -16,11 +16,11 @@ class BlockfrostController {
         return await this.dataSource.getPoolInfo(poolId);
     }
 
+    public async getPools(): Promise<Pool[]> {
+        return await this.dataSource.getPools();
+    }
+
     public async postTransactionSubmit(cbor: string): Promise<string> {
         return await this.dataSource.postTransactionSubmit(cbor);
     }
 }
-
-export const blockfrostController = new BlockfrostController(
-    new BlockfrostAPIDataSource(process.env.BLOCKFROST_API_KEY!, process.env.BLOCKFROST_NETWORK as Network),
-);

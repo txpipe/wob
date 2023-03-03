@@ -1,11 +1,11 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError } from '../api/errors';
-import { AssetInput, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
+import { AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
 
 export interface CarpDataSource {
     getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]>;
     getBlockLatest(offset: number): Promise<Block | undefined>;
-    getMetadataNft(assets: AssetInput[]): Promise<CIP25[]>;
+    getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]>;
     getTransactionHistory(
         addresses: string[],
         afterTx: string,
@@ -93,19 +93,12 @@ export class CarpAPIDataSource implements CarpDataSource {
      * Gets the CIP25 metadata for given <policy, asset_name> pairs
      * @param assets
      */
-    public async getMetadataNft(assets: AssetInput[]): Promise<CIP25[]> {
-        const data = {
-            assets: {} as { [policyId: string]: string[] },
-        };
-
-        assets.forEach(a => {
-            data.assets[a.policyId] = a.assetNames;
-        });
-
+    public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]> {
+       
         const requestConfig: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.host}/metadata/nft`,
-            data,
+            data: assets,
         };
 
         try {

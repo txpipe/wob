@@ -1,7 +1,7 @@
-import { CarpAPIDataSource, CarpDataSource } from '../dataSource/carp';
-import { AssetInput, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
+import { CarpDataSource } from '../dataSource/carp';
+import { AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
 
-class CarpController {
+export class CarpService {
     private dataSource: CarpDataSource;
 
     constructor(dataSource: CarpDataSource) {
@@ -16,7 +16,7 @@ class CarpController {
         return this.dataSource.getBlockLatest(offset);
     }
 
-    public async getMetadataNft(assets: AssetInput[]): Promise<CIP25[]> {
+    public async getMetadataNft(assets:{ [policyId: string]: AssetName[] }): Promise<CIP25[]> {
         return this.dataSource.getMetadataNft(assets);
     }
 
@@ -35,5 +35,3 @@ class CarpController {
         return this.dataSource.getTransactionOutput(utxoPointers);
     }
 }
-
-export const carpController = new CarpController(new CarpAPIDataSource(process.env.CARP_HOST!));

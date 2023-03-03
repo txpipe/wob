@@ -1,0 +1,23 @@
+{
+    "entryFile": "./src/app.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "controllerPathGlobs": ["./src/**/*Controller.ts"],
+    "spec": {
+      "outputDirectory": "dist",
+      "swagger": "2.0",
+      "name": "OneBox API",
+      "description": "API specification",
+      "specVersion": 3,
+      "spec": {
+        "servers": [
+          {
+            "url": "http://localhost:8000",
+            "description": "Local development"
+          }
+        ]
+      }
+    },
+    "routes": {
+      "routesDir": "src"
+    }
+  }
