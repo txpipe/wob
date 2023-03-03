@@ -8,3 +8,6 @@ enabled = true
 
 [node]
 enabled = true
+
+[carp]
+enabled = true
