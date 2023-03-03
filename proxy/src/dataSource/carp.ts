@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { BadRequestError } from '../api/errors';
+import { BadRequestError, NotFoundError } from '../api/errors';
 import { Address, AddressAfter, AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointer } from '../model/carp';
 import { ProvideSingleton } from '../ioc';
 import dotenv from 'dotenv';
@@ -83,8 +83,7 @@ export class CarpAPIDataSource implements CarpDataSource {
                 };
                 return block;
             }
-
-            return undefined;
+            throw new NotFoundError('unable to post block latest');
         } catch (err: any) {
             throw new BadRequestError(err.response?.data?.message || `unable to post block latest`);
         }
