@@ -135,3 +135,61 @@ export interface UtxoData {
     utxo: Utxo;
     block: Block;
 }
+
+export type Asset = {
+    policyId: PolicyId;
+    assetName: AssetName;
+} | null;
+
+/**
+ * @pattern [1-9][0-9]*
+ * @example "2042352568679"
+ */
+export type Amount = string;
+
+export enum Dex {
+    WingRiders = 'WingRiders',
+    SundaeSwap = 'SundaeSwap',
+    MinSwap = 'MinSwap',
+}
+
+export enum PriceType {
+    Buy = 'buy',
+    Sell = 'sell',
+    /**
+     * Mean is not AVG from the last values, but the remaining amount of assets on the pool output
+     */
+    Mean = 'mean',
+}
+
+export type DexLastPrice = {
+    asset1: Asset;
+    asset2: Asset;
+    amount1: Amount;
+    amount2: Amount;
+    dex: Dex;
+};
+
+export type DexMeanPrice = {
+    tx_hash: string;
+    dex: Dex;
+    asset1: Asset;
+    asset2: Asset;
+    amount1: Amount;
+    amount2: Amount;
+};
+
+export enum Direction {
+    Buy = 'buy',
+    Sell = 'sell',
+}
+
+export type DexSwap = {
+    tx_hash: string;
+    dex: Dex;
+    asset1: Asset;
+    asset2: Asset;
+    amount1: Amount;
+    amount2: Amount;
+    direction: Direction;
+};

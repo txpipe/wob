@@ -11,6 +11,8 @@ import { AssetsController } from './controllers/assetsController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { BlockController } from './controllers/blockController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { DexController } from './controllers/dexController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PoolController } from './controllers/poolController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TransactionController } from './controllers/transactionController';
@@ -208,6 +210,66 @@ const models: TsoaRoute.Models = {
             "indexInBlock": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PolicyId": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{"pattern":{"value":"[0-9a-fA-F]{56}"}}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Asset": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"assetName":{"ref":"AssetName","required":true},"policyId":{"ref":"PolicyId","required":true}}},{"dataType":"enum","enums":[null]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Amount": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{"pattern":{"value":"[1-9][0-9]*"}}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Dex": {
+        "dataType": "refEnum",
+        "enums": ["WingRiders","SundaeSwap","MinSwap"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DexLastPrice": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"dex":{"ref":"Dex","required":true},"amount2":{"ref":"Amount","required":true},"amount1":{"ref":"Amount","required":true},"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PriceType": {
+        "dataType": "refEnum",
+        "enums": ["buy","sell","mean"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DexLastPriceRequestBody": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"ref":"PriceType","required":true},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DexMeanPrice": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"amount2":{"ref":"Amount","required":true},"amount1":{"ref":"Amount","required":true},"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true},"dex":{"ref":"Dex","required":true},"tx_hash":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DexMeanPriceRequestBody": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double"},"dexes":{"dataType":"array","array":{"dataType":"refEnum","ref":"Dex"},"required":true},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Direction": {
+        "dataType": "refEnum",
+        "enums": ["buy","sell"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DexSwap": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"direction":{"ref":"Direction","required":true},"amount2":{"ref":"Amount","required":true},"amount1":{"ref":"Amount","required":true},"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true},"dex":{"ref":"Dex","required":true},"tx_hash":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DexSwapPriceRequestBody": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double"},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true},"dexes":{"dataType":"array","array":{"dataType":"refEnum","ref":"Dex"},"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pool": {
@@ -512,6 +574,96 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getLatest.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/dex/last-price',
+            ...(fetchMiddlewares<RequestHandler>(DexController)),
+            ...(fetchMiddlewares<RequestHandler>(DexController.prototype.getLastPrice)),
+
+            async function DexController_getLastPrice(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"DexLastPriceRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<DexController>(DexController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
+
+
+              const promise = controller.getLastPrice.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/dex/mean-price',
+            ...(fetchMiddlewares<RequestHandler>(DexController)),
+            ...(fetchMiddlewares<RequestHandler>(DexController.prototype.getMeanPrice)),
+
+            async function DexController_getMeanPrice(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"DexMeanPriceRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<DexController>(DexController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
+
+
+              const promise = controller.getMeanPrice.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/dex/swap-price',
+            ...(fetchMiddlewares<RequestHandler>(DexController)),
+            ...(fetchMiddlewares<RequestHandler>(DexController.prototype.getSwapPrice)),
+
+            async function DexController_getSwapPrice(request: any, response: any, next: any) {
+            const args = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"DexSwapPriceRequestBody"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const container: IocContainer = typeof iocContainer === 'function' ? (iocContainer as IocContainerFactory)(request) : iocContainer;
+
+                const controller: any = await container.get<DexController>(DexController);
+                if (typeof controller['setStatus'] === 'function') {
+                controller.setStatus(undefined);
+                }
+
+
+              const promise = controller.getSwapPrice.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
