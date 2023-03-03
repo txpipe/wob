@@ -1,6 +1,21 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError, NotFoundError } from '../api/errors';
-import { Address, AddressAfter, AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointer } from '../model/carp';
+import {
+    Address,
+    AddressAfter,
+    Asset,
+    AssetName,
+    Block,
+    CIP25,
+    Dex,
+    DexLastPrice,
+    DexMeanPrice,
+    DexSwap,
+    PriceType,
+    TransactionData,
+    UtxoData,
+    UtxoPointer,
+} from '../model/carp';
 import { ProvideSingleton } from '../ioc';
 import dotenv from 'dotenv';
 
@@ -18,6 +33,9 @@ export interface CarpDataSource {
         relationFilter?: number,
     ): Promise<TransactionData[]>;
     getTransactionOutput(utxoPointers: UtxoPointer[]): Promise<UtxoData[]>;
+    getLastPrice(assetPairs: { asset1: Asset; asset2: Asset }[], type: PriceType): Promise<DexLastPrice[]>;
+    getMeanPrice(assetPairs: { asset1: Asset; asset2: Asset }[], dexes: Array<Dex>, limit?: number): Promise<DexMeanPrice[]>;
+    getSwapPrice(dexes: Array<Dex>, assetPairs: { asset1: Asset; asset2: Asset }[], limit?: number): Promise<DexSwap[]>;
 }
 
 @ProvideSingleton(CarpAPIDataSource)
@@ -162,7 +180,7 @@ export class CarpAPIDataSource implements CarpDataSource {
     }
 
     /**
-     * Get the outputs for given <tx hash, output index> pairs.
+     * Executes a post to the carp api for getting the outputs for given <tx hash, output index> pairs.
      * @param utxoPointers
      * @returns
      */
@@ -187,6 +205,101 @@ export class CarpAPIDataSource implements CarpDataSource {
             return [];
         } catch (err: any) {
             throw new BadRequestError(err.response?.data?.message || `unable to post transaction output`);
+        }
+    }
+
+    /**
+     * Executes a post to the carp api for getting the last price
+     * @param assetPairs
+     * @param type
+     * @returns
+     */
+    public async getLastPrice(assetPairs: { asset1: Asset; asset2: Asset }[], type: PriceType): Promise<DexLastPrice[]> {
+        const data = {
+            assetPairs,
+            type,
+        };
+
+        const requestConfig: AxiosRequestConfig = {
+            method: 'POST',
+            url: `${this.host}/dex/last-price`,
+            data,
+        };
+
+        try {
+            const response = await axios(requestConfig);
+            if (response.data.lastPrice) {
+                return response.data.lastPrice;
+            }
+            return [];
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to post /dex/last-price`);
+        }
+    }
+
+    /**
+     * Executes a post to the carp api for getting the mean price
+     * @param assetPairs
+     * @param dexes
+     * @param limit
+     * @returns
+     */
+    public async getMeanPrice(assetPairs: { asset1: Asset; asset2: Asset }[], dexes: Array<Dex>, limit?: number): Promise<DexMeanPrice[]> {
+        const data = {
+            assetPairs,
+            dexes,
+            limit,
+        };
+
+        // @TODO: Include pagination with after / until
+
+        const requestConfig: AxiosRequestConfig = {
+            method: 'POST',
+            url: `${this.host}/dex/mean-price`,
+            data,
+        };
+
+        try {
+            const response = await axios(requestConfig);
+            if (response.data.meanPrices) {
+                return response.data.meanPrices;
+            }
+            return [];
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to post /dex/mean-price`);
+        }
+    }
+
+    /**
+     * Executes a post to the carp api for getting the swap price
+     * @param dexes
+     * @param assetPairs
+     * @param limit
+     * @returns
+     */
+    public async getSwapPrice(dexes: Array<Dex>, assetPairs: { asset1: Asset; asset2: Asset }[], limit?: number): Promise<DexSwap[]> {
+        const data = {
+            assetPairs,
+            dexes,
+            limit,
+        };
+
+        // @TODO: Include pagination with after / until
+
+        const requestConfig: AxiosRequestConfig = {
+            method: 'POST',
+            url: `${this.host}/dex/swap-price`,
+            data,
+        };
+
+        try {
+            const response = await axios(requestConfig);
+            if (response.data.swap) {
+                return response.data.swap;
+            }
+            return [];
+        } catch (err: any) {
+            throw new BadRequestError(err.response?.data?.message || `unable to post /dex/swap-price`);
         }
     }
 }

@@ -1,5 +1,20 @@
 import { CarpAPIDataSource, CarpDataSource } from '../dataSource/carp';
-import { Address, AddressAfter, AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointer } from '../model/carp';
+import {
+    Address,
+    AddressAfter,
+    Asset,
+    AssetName,
+    Block,
+    CIP25,
+    Dex,
+    DexLastPrice,
+    DexMeanPrice,
+    DexSwap,
+    PriceType,
+    TransactionData,
+    UtxoData,
+    UtxoPointer,
+} from '../model/carp';
 import { ProvideSingleton } from '../ioc';
 import { inject } from 'inversify';
 
@@ -31,5 +46,17 @@ export class CarpService {
 
     public async getTransactionOutput(utxoPointers: UtxoPointer[]): Promise<UtxoData[]> {
         return this.dataSource.getTransactionOutput(utxoPointers);
+    }
+
+    public async getLastPrice(assetPairs: { asset1: Asset; asset2: Asset }[], type: PriceType): Promise<DexLastPrice[]> {
+        return this.dataSource.getLastPrice(assetPairs, type);
+    }
+
+    public async getMeanPrice(assetPairs: { asset1: Asset; asset2: Asset }[], dexes: Array<Dex>, limit?: number): Promise<DexMeanPrice[]> {
+        return this.dataSource.getMeanPrice(assetPairs, dexes, limit);
+    }
+
+    public async getSwapPrice(dexes: Array<Dex>, assetPairs: { asset1: Asset; asset2: Asset }[], limit?: number): Promise<DexSwap[]> {
+        return this.dataSource.getSwapPrice(dexes, assetPairs, limit);
     }
 }
