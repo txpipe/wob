@@ -1,6 +1,6 @@
 import { Get, Route, Controller, Path, Tags, Post, Body } from 'tsoa';
 import { MetadataNftRequestBody } from '../model/requests';
-import { CIP25 } from '../model/carp';
+import { CIP25, PolicyId } from '../model/carp';
 import { TokenInfo } from '../model/tokenRegistry';
 import { CarpService } from '../services/carpService';
 import { TokenRegistryService } from '../services/tokenRegistryService';

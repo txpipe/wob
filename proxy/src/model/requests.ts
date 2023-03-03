@@ -1,11 +1,11 @@
-import { AddressAfter, AssetName, UtxoPointers } from './carp';
+import { Address, AddressAfter, AssetName, UtxoPointer } from './carp';
 
 export type AccountDelegationAndRewardsRequestBody = {
     stakeKeyHashes: string[];
 };
 
 export type AddressUsedRequestBody = {
-    addresses: string[];
+    addresses: Address[];
     after: AddressAfter;
     untilBlock: string;
 };
@@ -15,7 +15,7 @@ export type MetadataNftRequestBody = {
 };
 
 export type TransactionOutputRequestBody = {
-    utxoPointers: UtxoPointers[];
+    utxoPointers: UtxoPointer[];
 };
 
 export type TransactionSubmitRequestBody = {
@@ -23,7 +23,7 @@ export type TransactionSubmitRequestBody = {
 };
 
 export type TransactionHistoryRequestBody = {
-    addresses: string[];
+    addresses: Address[];
     after: AddressAfter;
     untilBlock: string;
     limit?: number;

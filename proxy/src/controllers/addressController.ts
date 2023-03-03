@@ -32,6 +32,6 @@ export class AddressController extends Controller {
 
     @Post('/used')
     public async getAddressUsed(@Body() requestBody: AddressUsedRequestBody): Promise<string[]> {
-        return this.carpService.getAddressUsed(requestBody.addresses, requestBody.after.tx, requestBody.after.block, requestBody.untilBlock);
+        return this.carpService.getAddressUsed(requestBody.addresses, requestBody.after, requestBody.untilBlock);
     }
 }

@@ -1,5 +1,5 @@
 import { CarpAPIDataSource, CarpDataSource } from '../dataSource/carp';
-import { AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
+import { Address, AddressAfter, AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointer } from '../model/carp';
 import { ProvideSingleton } from '../ioc';
 import { inject } from 'inversify';
 
@@ -7,8 +7,8 @@ import { inject } from 'inversify';
 export class CarpService {
     constructor(@inject(CarpAPIDataSource) private dataSource: CarpDataSource) {}
 
-    public async getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]> {
-        return this.dataSource.getAddressUsed(addresses, afterTx, afterBlock, untilBlock);
+    public async getAddressUsed(addresses: Address[], after: AddressAfter, untilBlock: string): Promise<string[]> {
+        return this.dataSource.getAddressUsed(addresses, after, untilBlock);
     }
 
     public async getBlockLatest(offset: number): Promise<Block | undefined> {
@@ -20,17 +20,16 @@ export class CarpService {
     }
 
     public async getTransactionHistory(
-        addresses: string[],
-        afterTx: string,
-        afterBlock: string,
+        addresses: Address[],
+        after: AddressAfter,
         untilBlock: string,
         limit?: number,
         relationFilter?: number,
     ): Promise<TransactionData[]> {
-        return this.getTransactionHistory(addresses, afterTx, afterBlock, untilBlock, limit, relationFilter);
+        return this.getTransactionHistory(addresses, after, untilBlock, limit, relationFilter);
     }
 
-    public async getTransactionOutput(utxoPointers: UtxoPointers[]): Promise<UtxoData[]> {
+    public async getTransactionOutput(utxoPointers: UtxoPointer[]): Promise<UtxoData[]> {
         return this.dataSource.getTransactionOutput(utxoPointers);
     }
 }

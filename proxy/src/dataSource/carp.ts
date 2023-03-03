@@ -1,24 +1,23 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError } from '../api/errors';
-import { AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointers } from '../model/carp';
+import { Address, AddressAfter, AssetName, Block, CIP25, TransactionData, UtxoData, UtxoPointer } from '../model/carp';
 import { ProvideSingleton } from '../ioc';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 export interface CarpDataSource {
-    getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]>;
+    getAddressUsed(addresses: Address[], after: AddressAfter, untilBlock: string): Promise<string[]>;
     getBlockLatest(offset: number): Promise<Block | undefined>;
     getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]>;
     getTransactionHistory(
         addresses: string[],
-        afterTx: string,
-        afterBlock: string,
+        after: AddressAfter,
         untilBlock: string,
         limit?: number,
         relationFilter?: number,
     ): Promise<TransactionData[]>;
-    getTransactionOutput(utxoPointers: UtxoPointers[]): Promise<UtxoData[]>;
+    getTransactionOutput(utxoPointers: UtxoPointer[]): Promise<UtxoData[]>;
 }
 
 @ProvideSingleton(CarpAPIDataSource)
@@ -39,13 +38,10 @@ export class CarpAPIDataSource implements CarpDataSource {
    * @param untilBlock 
    * @returns 
    */
-    public async getAddressUsed(addresses: string[], afterTx: string, afterBlock: string, untilBlock: string): Promise<string[]> {
+    public async getAddressUsed(addresses: Address[], after: AddressAfter, untilBlock: string): Promise<string[]> {
         const data = {
             addresses,
-            after: {
-                tx: afterTx,
-                block: afterBlock,
-            },
+            after,
             untilBlock,
         };
 
@@ -135,19 +131,15 @@ export class CarpAPIDataSource implements CarpDataSource {
      * @returns 
      */
     public async getTransactionHistory(
-        addresses: string[],
-        afterTx: string,
-        afterBlock: string,
+        addresses: Address[],
+        after: AddressAfter,
         untilBlock: string,
         limit?: number,
         relationFilter?: number,
     ): Promise<TransactionData[]> {
         const data = {
             addresses,
-            after: {
-                tx: afterTx,
-                block: afterBlock,
-            },
+            after,
             untilBlock,
             limit,
             relationFilter,
@@ -175,7 +167,7 @@ export class CarpAPIDataSource implements CarpDataSource {
      * @param utxoPointers
      * @returns
      */
-    public async getTransactionOutput(utxoPointers: UtxoPointers[]): Promise<UtxoData[]> {
+    public async getTransactionOutput(utxoPointers: UtxoPointer[]): Promise<UtxoData[]> {
         const data = {
             utxoPointers,
         };

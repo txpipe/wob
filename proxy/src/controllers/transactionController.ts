@@ -18,8 +18,7 @@ export class TransactionController extends Controller {
     public async getTransactionHistory(@Body() requestBody: TransactionHistoryRequestBody): Promise<TransactionData[]> {
         return this.carpService.getTransactionHistory(
             requestBody.addresses,
-            requestBody.after.tx,
-            requestBody.after.block,
+            requestBody.after,
             requestBody.untilBlock,
             requestBody.limit,
             requestBody.relationFilter,
