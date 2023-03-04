@@ -1,4 +1,4 @@
-import { Route, Controller, Tags, Post, Body } from 'tsoa';
+import { Route, Controller, Tags, Post, Body, Example } from 'tsoa';
 import { AccountDelegationAndRewardsRequestBody } from '../model/requests';
 import { DelegationAndRewards } from '../model/ogmios';
 import { OgmiosService } from '../services/ogmiosService';
@@ -13,6 +13,12 @@ export class AccountController extends Controller {
         super();
     }
 
+    @Example<{ [account: string]: DelegationAndRewards }>({
+        '7353517eef637f3df6f2e8a49e013676c4b003320ceab31797229cc6': {
+            delegate: 'pool132jxjzyw4awr3s75ltcdx5tv5ecv6m042306l630wqjckhfm32r',
+            rewards: 0,
+        },
+    })
     @Post('/state')
     public async getDelegationAndRewards(
         @Body() requestBody: AccountDelegationAndRewardsRequestBody,

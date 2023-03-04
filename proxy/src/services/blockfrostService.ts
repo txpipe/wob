@@ -15,7 +15,7 @@ export class BlockfrostService {
         return await this.dataSource.getPoolInfo(poolId);
     }
 
-    public async getPools(): Promise<Pool[]> {
+    public async getPools(): Promise<string[]> {
         return await this.dataSource.getPools();
     }
 
