@@ -1,10 +1,11 @@
+use bollard::network::CreateNetworkOptions;
 use miette::Diagnostic;
 use thiserror::Error;
 
 mod context;
 
 pub use context::*;
-use tracing::instrument;
+use tracing::{instrument, info};
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum Error {
@@ -51,6 +52,12 @@ macro_rules! for_every_enabled_provider {
                 crate::providers::carp::$func($ctx, i).await?;
             }
         }
+
+        if let Some(i) = &$ctx.config.proxy {
+            if i.enabled {
+                crate::providers::proxy::$func($ctx, i).await?;
+            }
+        }
     }};
 }
 
@@ -77,6 +84,25 @@ pub async fn prune(ctx: &Context) -> Result<(), Error> {
 
 #[instrument(skip_all)]
 pub async fn up(ctx: &Context) -> Result<(), Error> {
+    
+    let create_network_options = CreateNetworkOptions {
+        name: "wob",
+        check_duplicate: true,
+        driver: if cfg!(windows) {
+            "transparent"
+        } else {
+            "bridge"
+        },
+        ..Default::default()
+    };
+
+    ctx.docker
+        .create_network(create_network_options)
+        .await
+        .map_err(Error::docker)?;
+
+    info!("wob network created");
+
     for_every_enabled_provider!(up, &ctx);
 
     Ok(())
