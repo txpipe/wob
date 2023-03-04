@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
@@ -17,6 +19,13 @@ fn define_image(config: &Config) -> &str {
 
 #[instrument(name = "ogmios", skip_all)]
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
+    ctx.ensure_host_dir(PathBuf::from(&"ogmios"))?;
+
+    ctx.import_static_file(
+        PathBuf::from("preview/node/config.json"),
+        PathBuf::from("ogmios/config.json"),
+    )?;
+
     Ok(())
 }
 
@@ -35,6 +44,11 @@ pub async fn prune(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     ctx.remove_image(image_name).await?;
 
+    ctx.container_down("ogmios").await?;
+
+    ctx.remove_host_file(PathBuf::from("ogmios/config.json"))?;
+    ctx.remove_host_dir(PathBuf::from(&"ogmios"))?;
+
     Ok(())
 }
 
@@ -45,8 +59,9 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let port_bindings = ctx.build_port_bindings(vec![("1337", "tcp")]);
 
     let host_config = HostConfig {
-        network_mode: Some(String::from("wob")),
+        network_mode: Some(ctx.define_network_name()),
         mounts: Some(ctx.define_mounts()),
+        memory: Some(2_000_000_000),
         port_bindings: Some(port_bindings),
         restart_policy: Some(RestartPolicy {
             name: Some(RestartPolicyNameEnum::UNLESS_STOPPED),
@@ -61,10 +76,11 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
             "--node-socket",
             "/host/ipc/node.socket",
             "--node-config",
-            "/host/configs/preview/config.json",
+            "/host/ogmios/config.json",
             "--host",
             "0.0.0.0",
         ]),
+        hostname: Some("ogmios"),
         host_config: Some(host_config),
         ..Default::default()
     };
@@ -76,8 +92,6 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 
 #[instrument(name = "ogmios", skip_all)]
 pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
-    ctx.container_down("ogmios").await?;
-
     Ok(())
 }
 

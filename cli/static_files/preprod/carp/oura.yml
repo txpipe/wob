@@ -7,7 +7,7 @@ sink:
   type: cardano
   db:
     type: postgres
-    database_url: postgresql://carp:1234@host.docker.internal:5432/carp_mainnet
-  network: mainnet # preview / preprod / testnet
+    database_url: postgresql://carp:1234@carp-postgres:5432/carp
+  network: preprod
 
 start_block:

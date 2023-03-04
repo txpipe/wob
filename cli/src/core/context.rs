@@ -198,14 +198,6 @@ impl Context {
         format!("{}_{}", self.config.name, suffix)
     }
 
-    pub fn build_env_var(&self, name: &str, value: &str) -> String {
-        format!("{}={}", name, value)
-    }
-
-    pub fn build_hostname(&self, prefix: &str, provider: &str, suffix: &str) -> String {
-        format!("{}{}_{}{}", prefix, self.config.name, provider, suffix)
-    }
-
     pub fn build_port_bindings(
         &self,
         ports: Vec<(&str, &str)>,
