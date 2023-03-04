@@ -46,7 +46,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let port_bindings = ctx.build_port_bindings(vec![("8000", "tcp")]);
 
     let host_config = HostConfig {
-        network_mode: Some(String::from("wob")),
+        network_mode: Some(ctx.define_network_name()),
         port_bindings: Some(port_bindings),
         restart_policy: Some(RestartPolicy {
             name: Some(RestartPolicyNameEnum::UNLESS_STOPPED),
@@ -56,24 +56,33 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     };
 
     let image = define_image(config);
-    
-    let blockfrost_api_key = ctx.build_env_var("BLOCKFROST_API_KEY", config.blockfrost_api_key.as_deref().unwrap());
-    let blockfrost_network= ctx.build_env_var("BLOCKFROST_NETWORK", config.blockfrost_network.as_deref().unwrap());
-    let ogmios_host = ctx.build_env_var("OGMIOS_HOST", &ctx.build_hostname("", "ogmios", ""));
-    let carp_host = ctx.build_env_var("CARP_HOST", &ctx.build_hostname("http://", "carp-webserver", ":3000"));
-    let token_registry_url = ctx.build_env_var("TOKEN_REGISTRY_URL", config.token_registry_url.as_deref().unwrap());
+
+    let bf_api_key = format!(
+        "BLOCKFROST_API_KEY={}",
+        config.blockfrost_api_key.as_deref().unwrap_or_default()
+    );
+
+    let bf_network = format!(
+        "BLOCKFROST_NETWORK={}",
+        config.blockfrost_network.as_deref().unwrap_or_default()
+    );
+
+    let token_registry_url = format!(
+        "TOKEN_REGISTRY_URL={}",
+        config.token_registry_url.as_deref().unwrap()
+    );
 
     let spec = ContainerSpec {
         image: Some(image),
         env: Some(vec![
             "SCROLLS_URL=redis://kvrocks-mainnet-adahandle.ftr-scrolls-v0.svc.cluster.local:6666",
-            &blockfrost_api_key,
-            &blockfrost_network,
-            &ogmios_host,
-            &carp_host,
-            &token_registry_url,
+            "CARP_HOST=http://carp-webserver:3000",
+            "OGMIOS_HOST=ogmios",
             "OGMIOS_PORT=1337",
             "PORT=8000",
+            &bf_api_key,
+            &bf_network,
+            &token_registry_url,
         ]),
         host_config: Some(host_config),
         ..Default::default()

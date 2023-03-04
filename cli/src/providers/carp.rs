@@ -1,5 +1,7 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
-use tracing::{info, instrument};
+use tracing::instrument;
 
 use super::prelude::*;
 
@@ -16,7 +18,16 @@ fn define_image(config: &Config) -> &str {
 }
 
 #[instrument(name = "carp", skip_all)]
-pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
+pub async fn init(ctx: &Context, _config: &Config) -> Result<(), Error> {
+    ctx.ensure_host_dir(PathBuf::from("carp"))?;
+
+    ctx.import_static_file(
+        PathBuf::from("preview/carp/oura.yml"),
+        PathBuf::from("carp/oura.yml"),
+    )?;
+
+    ctx.ensure_host_dir(PathBuf::from("carp/pgdata"))?;
+
     Ok(())
 }
 
@@ -36,17 +47,19 @@ pub async fn prune(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     ctx.remove_image(image_name).await?;
 
+    ctx.remove_host_file(PathBuf::from("carp/oura.yml"))?;
+    ctx.remove_host_dir(PathBuf::from("carp"))?;
+
     Ok(())
 }
 
-#[instrument(name = "carp", skip_all)]
-pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
-    // postgres
+#[instrument(name = "postgres", skip_all)]
+pub async fn up_postgres(ctx: &Context, _config: &Config) -> Result<(), Error> {
     let postgres_port_bindings = ctx.build_port_bindings(vec![("5432", "tcp")]);
 
     let postgres_host_config = HostConfig {
         mounts: Some(ctx.define_mounts()),
-        network_mode: Some(String::from("wob")),
+        network_mode: Some(ctx.define_network_name()),
         port_bindings: Some(postgres_port_bindings),
         ..Default::default()
     };
@@ -58,38 +71,42 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
         env: Some(vec![
             "POSTGRES_LOGGING=true",
             "POSTGRES_USER=carp",
-            "POSTGRES_DB=carp_preview",
+            "POSTGRES_DB=carp",
             "POSTGRES_PASSWORD=1234",
+            "PGDATA=/host/carp/pgdata",
         ]),
+        hostname: Some("carp-postgres"),
         host_config: Some(postgres_host_config),
         ..Default::default()
     };
 
     ctx.container_up("carp-postgres", postgres_spec).await?;
 
+    Ok(())
+}
+
+#[instrument(name = "indexer", skip_all)]
+pub async fn up_indexer(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
     let carp_port_bindings = ctx.build_port_bindings(vec![("1337", "tcp")]);
 
     let carp_host_config = HostConfig {
         mounts: Some(ctx.define_mounts()),
-        network_mode: Some(String::from("wob")),
+        network_mode: Some(ctx.define_network_name()),
         memory_reservation: Some(536870912),
         port_bindings: Some(carp_port_bindings),
         ..Default::default()
     };
 
-    let postgres_host = ctx.build_env_var("POSTGRES_HOST", &ctx.build_hostname("", "carp-postgres", ""));
-    let database_url = ctx.build_env_var("DATABASE_URL", &ctx.build_hostname("postgresql://carp:1234@", "carp-postgres", ":5432/carp_preview"));
-
     let carp_spec = ContainerSpec {
         image: Some(image_name),
         env: Some(vec![
             "NETWORK=preview",
-            &database_url,
-            &postgres_host,
+            "POSTGRES_HOST=carp-postgres",
+            "DATABASE_URL=postgresql://carp:1234@carp-postgres:5432/carp",
             "POSTGRES_PORT=5432",
-            "POSTGRES_DB=carp_preview",
+            "POSTGRES_DB=carp",
             "PGUSER=carp",
             "PGPASSWORD=1234",
             "RUST_BACKTRACE=1",
@@ -97,19 +114,26 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
         entrypoint: Some(vec![
             "/bin/bash",
             "-c",
-            "/app/migration up ;
-            /app/carp --config-path /host/carp/oura_docker.yml ;",
+            "sleep 20 ;
+            /app/migration up ;
+            /app/carp --config-path /host/carp/oura.yml ;",
         ]),
+        hostname: Some("carp"),
         host_config: Some(carp_host_config),
         ..Default::default()
     };
 
     ctx.container_up("carp", carp_spec).await?;
 
+    Ok(())
+}
+
+#[instrument(name = "webserver", skip_all)]
+pub async fn up_webserver(ctx: &Context, _config: &Config) -> Result<(), Error> {
     let carp_webserver_port_bindings = ctx.build_port_bindings(vec![("3000", "tcp")]);
 
     let carp_webserver_host_config = HostConfig {
-        network_mode: Some(String::from("wob")),
+        network_mode: Some(ctx.define_network_name()),
         port_bindings: Some(carp_webserver_port_bindings),
         ..Default::default()
     };
@@ -121,8 +145,9 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let carp_webserver_spec = ContainerSpec {
         image: Some("dcspark/carp-webserver:latest"),
         env: Some(vec![
-            &database_url,
+            "DATABASE_URL=postgresql://carp:1234@carp-postgres:5432/carp",
         ]),
+        hostname: Some("carp-webserver"),
         host_config: Some(carp_webserver_host_config),
         exposed_ports: Some(exposed_ports),
         ..Default::default()
@@ -135,7 +160,16 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(name = "carp", skip_all)]
-pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
+pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
+    up_postgres(ctx, config).await?;
+    up_indexer(ctx, config).await?;
+    up_webserver(ctx, config).await?;
+
+    Ok(())
+}
+
+#[instrument(name = "carp", skip_all)]
+pub async fn down(ctx: &Context, _config: &Config) -> Result<(), Error> {
     ctx.container_down("carp").await?;
     ctx.container_down("carp-postgres").await?;
     ctx.container_down("carp-webserver").await?;
@@ -144,7 +178,7 @@ pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(name = "carp", skip_all)]
-pub async fn health(ctx: &Context, config: &Config) -> Result<(), Error> {
+pub async fn health(ctx: &Context, _config: &Config) -> Result<(), Error> {
     ctx.container_health("carp").await?;
     ctx.container_health("carp-postgres").await?;
     ctx.container_health("carp-webserver").await?;
