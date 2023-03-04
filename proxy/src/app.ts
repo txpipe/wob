@@ -40,8 +40,6 @@ app.use(function errorHandler(err: unknown, req: Request, res: Response, next: N
             message: 'Internal Server Error',
         });
     }
-    // @TODO: Handle bad request or other error types so not everything falls under
-    // internal server error
     next();
 });
 

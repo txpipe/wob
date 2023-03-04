@@ -29,7 +29,7 @@ function getBaseUrl(network: Network): string {
 export interface BlockfrostDataSource {
     getRewardsHistory(stakeAddress: string): Promise<Reward[]>;
     getPoolInfo(poolId: string): Promise<Pool | undefined>;
-    getPools(): Promise<Pool[]>;
+    getPools(): Promise<string[]>;
     postTransactionSubmit(cbor: string): Promise<string>;
 }
 
@@ -81,7 +81,7 @@ export class BlockfrostAPIDataSource implements BlockfrostDataSource {
         }
     }
 
-    public async getPools(): Promise<Pool[]> {
+    public async getPools(): Promise<string[]> {
         const requestConfig: AxiosRequestConfig = {
             method: 'GET',
             url: `${getBaseUrl(this.network)}/pools/`,
