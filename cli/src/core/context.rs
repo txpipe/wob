@@ -6,6 +6,7 @@ use std::{
 use bollard::{
     container::CreateContainerOptions,
     image::CreateImageOptions,
+    network::CreateNetworkOptions,
     service::{HealthStatusEnum, Mount, MountTypeEnum, PortBinding, ProgressDetail},
     Docker,
 };
@@ -53,6 +54,67 @@ impl Context {
 
     pub async fn image_exists(&self, image_name: &str) -> Result<bool, Error> {
         Ok(self.docker.inspect_image(image_name).await.is_ok())
+    }
+
+    pub fn define_network_name(&self) -> String {
+        format!("wob_{}", self.config.name)
+    }
+
+    async fn network_exists(&self, name: &str) -> Result<bool, Error> {
+        Ok(self
+            .docker
+            .inspect_network::<String>(name, None)
+            .await
+            .is_ok())
+    }
+
+    #[instrument(skip(self))]
+    pub async fn network_up(&self) -> Result<(), Error> {
+        let name = self.define_network_name();
+
+        if self.network_exists(&name).await? {
+            info!("network already created, skipping");
+            return Ok(());
+        }
+
+        let create_network_options = CreateNetworkOptions {
+            name,
+            check_duplicate: true,
+            driver: if cfg!(windows) {
+                "transparent".to_string()
+            } else {
+                "bridge".to_string()
+            },
+            ..Default::default()
+        };
+
+        self.docker
+            .create_network(create_network_options)
+            .await
+            .map_err(Error::docker)?;
+
+        info!("network created");
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub async fn network_down(&self) -> Result<(), Error> {
+        let name = self.define_network_name();
+
+        if !self.network_exists(&name).await? {
+            info!("network already removed, skipping");
+            return Ok(());
+        }
+
+        self.docker
+            .remove_network(&name)
+            .await
+            .map_err(Error::docker)?;
+
+        info!("network removed");
+
+        Ok(())
     }
 
     #[instrument(skip(self))]
@@ -137,14 +199,17 @@ impl Context {
     }
 
     pub fn build_env_var(&self, name: &str, value: &str) -> String {
-        format!("{}={}", name, value )
+        format!("{}={}", name, value)
     }
 
     pub fn build_hostname(&self, prefix: &str, provider: &str, suffix: &str) -> String {
         format!("{}{}_{}{}", prefix, self.config.name, provider, suffix)
     }
 
-    pub fn build_port_bindings(&self, ports: Vec<(&str, &str)>) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
+    pub fn build_port_bindings(
+        &self,
+        ports: Vec<(&str, &str)>,
+    ) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
         let mut port_bindings = ::std::collections::HashMap::new();
 
         for port in ports.into_iter() {
