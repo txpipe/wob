@@ -9,6 +9,7 @@ import { ValidateError } from 'tsoa';
 import { buildProviderModule } from 'inversify-binding-decorators';
 import { RegisterRoutes } from './routes';
 import { iocContainer } from './ioc';
+import { BadRequestError } from './api/errors';
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -27,6 +28,11 @@ app.use(function errorHandler(err: unknown, req: Request, res: Response, next: N
         return res.status(422).json({
             message: 'Validation Failed',
             details: err?.fields,
+        });
+    }
+    if (err instanceof BadRequestError) {
+        return res.status(400).json({
+            message: err.message || 'unknown error',
         });
     }
     if (err instanceof Error) {
