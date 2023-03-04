@@ -88,9 +88,10 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
         ctx.build_port_bindings(vec![("3000", "tcp"), ("3307", "tcp"), ("12798", "tcp")]);
 
     let host_config = HostConfig {
-        network_mode: Some(String::from("wob")),
+        network_mode: Some(ctx.define_network_name()),
         mounts: Some(ctx.define_mounts()),
         port_bindings: Some(port_bindings),
+        memory: Some(8_000_000_000),
         restart_policy: Some(RestartPolicy {
             name: Some(RestartPolicyNameEnum::EMPTY),
             maximum_retry_count: Some(5),

@@ -5,7 +5,7 @@ use thiserror::Error;
 mod context;
 
 pub use context::*;
-use tracing::{instrument, info};
+use tracing::{info, instrument};
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum Error {
@@ -84,24 +84,7 @@ pub async fn prune(ctx: &Context) -> Result<(), Error> {
 
 #[instrument(skip_all)]
 pub async fn up(ctx: &Context) -> Result<(), Error> {
-    
-    let create_network_options = CreateNetworkOptions {
-        name: "wob",
-        check_duplicate: true,
-        driver: if cfg!(windows) {
-            "transparent"
-        } else {
-            "bridge"
-        },
-        ..Default::default()
-    };
-
-    ctx.docker
-        .create_network(create_network_options)
-        .await
-        .map_err(Error::docker)?;
-
-    info!("wob network created");
+    ctx.network_up().await?;
 
     for_every_enabled_provider!(up, &ctx);
 
@@ -111,6 +94,8 @@ pub async fn up(ctx: &Context) -> Result<(), Error> {
 #[instrument(skip_all)]
 pub async fn down(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(down, &ctx);
+
+    ctx.network_down().await?;
 
     Ok(())
 }
