@@ -136,10 +136,15 @@ impl Context {
         format!("{}_{}", self.config.name, suffix)
     }
 
-    pub fn build_port_bindings(
-        &self,
-        ports: Vec<(&str, &str)>,
-    ) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
+    pub fn build_env_var(&self, name: &str, value: &str) -> String {
+        format!("{}={}", name, value )
+    }
+
+    pub fn build_hostname(&self, prefix: &str, provider: &str, suffix: &str) -> String {
+        format!("{}{}_{}{}", prefix, self.config.name, provider, suffix)
+    }
+
+    pub fn build_port_bindings(&self, ports: Vec<(&str, &str)>) -> HashMap<String, Option<Vec<PortBinding>>, RandomState> {
         let mut port_bindings = ::std::collections::HashMap::new();
 
         for port in ports.into_iter() {

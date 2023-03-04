@@ -45,6 +45,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let port_bindings = ctx.build_port_bindings(vec![("1337", "tcp")]);
 
     let host_config = HostConfig {
+        network_mode: Some(String::from("wob")),
         mounts: Some(ctx.define_mounts()),
         port_bindings: Some(port_bindings),
         restart_policy: Some(RestartPolicy {

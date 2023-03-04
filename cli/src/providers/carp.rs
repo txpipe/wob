@@ -46,6 +46,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     let postgres_host_config = HostConfig {
         mounts: Some(ctx.define_mounts()),
+        network_mode: Some(String::from("wob")),
         port_bindings: Some(postgres_port_bindings),
         ..Default::default()
     };
@@ -72,17 +73,21 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     let carp_host_config = HostConfig {
         mounts: Some(ctx.define_mounts()),
+        network_mode: Some(String::from("wob")),
         memory_reservation: Some(536870912),
         port_bindings: Some(carp_port_bindings),
         ..Default::default()
     };
 
+    let postgres_host = ctx.build_env_var("POSTGRES_HOST", &ctx.build_hostname("", "carp-postgres", ""));
+    let database_url = ctx.build_env_var("DATABASE_URL", &ctx.build_hostname("postgresql://carp:1234@", "carp-postgres", ":5432/carp_preview"));
+
     let carp_spec = ContainerSpec {
         image: Some(image_name),
         env: Some(vec![
             "NETWORK=preview",
-            "DATABASE_URL=postgresql://carp:1234@host.docker.internal:5432/carp_preview",
-            "POSTGRES_HOST=host.docker.internal",
+            &database_url,
+            &postgres_host,
             "POSTGRES_PORT=5432",
             "POSTGRES_DB=carp_preview",
             "PGUSER=carp",
@@ -104,6 +109,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let carp_webserver_port_bindings = ctx.build_port_bindings(vec![("3000", "tcp")]);
 
     let carp_webserver_host_config = HostConfig {
+        network_mode: Some(String::from("wob")),
         port_bindings: Some(carp_webserver_port_bindings),
         ..Default::default()
     };
@@ -115,7 +121,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let carp_webserver_spec = ContainerSpec {
         image: Some("dcspark/carp-webserver:latest"),
         env: Some(vec![
-            "DATABASE_URL=postgresql://carp:1234@host.docker.internal:5432/carp_preview",
+            &database_url,
         ]),
         host_config: Some(carp_webserver_host_config),
         exposed_ports: Some(exposed_ports),
