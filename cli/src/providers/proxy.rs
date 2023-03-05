@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
-use crate::config::InitInputs;
+use crate::config::{InitInputs, WellknownNetwork};
 
 use super::prelude::*;
 
@@ -18,10 +18,22 @@ pub struct Config {
     pub token_registry_url: Option<String>,
 }
 
+fn wellknown_network_to_blockfrost(network: &WellknownNetwork) -> Option<String> {
+    match network {
+        WellknownNetwork::Mainnet => String::from("cardano-mainnet").into(),
+        WellknownNetwork::PreProd => String::from("cardano-preprod").into(),
+        WellknownNetwork::Preview => String::from("cardano-preview").into(),
+        _ => None,
+    }
+}
+
 impl Config {
     pub fn build(inputs: &InitInputs) -> Self {
         Self {
             enabled: inputs.enabled_providers.iter().any(|x| x == PROVIDER_ID),
+            blockfrost_api_key: inputs.blockfrost_api_key.clone(),
+            blockfrost_network: wellknown_network_to_blockfrost(&inputs.network),
+            token_registry_url: inputs.token_registry_url.clone(),
             ..Default::default()
         }
     }
