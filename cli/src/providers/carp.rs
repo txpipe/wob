@@ -31,7 +31,7 @@ fn define_image(config: &Config) -> &str {
 }
 
 #[instrument(name = "carp", skip_all)]
-pub async fn init(ctx: &Context, _config: &Config) -> Result<(), Error> {
+pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from("carp"))?;
 
     ctx.import_static_file(
@@ -41,16 +41,12 @@ pub async fn init(ctx: &Context, _config: &Config) -> Result<(), Error> {
 
     ctx.ensure_host_dir(PathBuf::from("carp/pgdata"))?;
 
-    Ok(())
-}
-
-#[instrument(name = "carp", skip_all)]
-pub async fn pull(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
     ctx.pull_image(image_name).await?;
     ctx.pull_image("postgres:13.6").await?;
     ctx.pull_image("dcspark/carp-webserver:latest").await?;
+
     Ok(())
 }
 
