@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
+use crate::config::InitInputs;
+
 use super::prelude::*;
+
+pub const PROVIDER_ID: &str = "proxy";
 
 const DEFAULT_IMAGE: &str = "ghcr.io/txpipe/wob-proxy:latest";
 
@@ -12,6 +16,15 @@ pub struct Config {
     pub blockfrost_api_key: Option<String>,
     pub blockfrost_network: Option<String>,
     pub token_registry_url: Option<String>,
+}
+
+impl Config {
+    pub fn build(inputs: &InitInputs) -> Self {
+        Self {
+            enabled: inputs.enabled_providers.iter().any(|x| x == PROVIDER_ID),
+            ..Default::default()
+        }
+    }
 }
 
 fn define_image(config: &Config) -> &str {
@@ -69,7 +82,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     let token_registry_url = format!(
         "TOKEN_REGISTRY_URL={}",
-        config.token_registry_url.as_deref().unwrap()
+        config.token_registry_url.as_deref().unwrap_or_default()
     );
 
     let spec = ContainerSpec {

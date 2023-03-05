@@ -6,6 +6,8 @@ use tracing::Level;
 use tracing_indicatif::IndicatifLayer;
 use tracing_subscriber::prelude::*;
 
+mod init;
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
@@ -14,20 +16,23 @@ struct Cli {
     command: Commands,
 
     #[arg(short, long)]
-    config: Option<String>,
-
-    #[arg(short, long)]
-    static_files: Option<PathBuf>,
+    config: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
-    Init,
+    Init(InitArgs),
     Pull,
     Up,
     Health,
     Down,
     Prune,
+}
+
+#[derive(Parser)]
+struct InitArgs {
+    #[arg(short, long)]
+    static_files: Option<PathBuf>,
 }
 
 #[tokio::main]
@@ -42,47 +47,61 @@ async fn main() -> miette::Result<()> {
         .init();
 
     let cli = Cli::parse();
-    let cfg = onebox::config::load(cli.config.as_deref()).into_diagnostic()?;
-    let working_dir = std::env::current_dir().into_diagnostic()?;
 
-    let static_files_root = cli
-        .static_files
-        .unwrap_or_else(|| PathBuf::from("/etc/wob/files"));
+    match cli.command {
+        Commands::Init(args) => {
+            let inputs = init::gather_inputs()
+                .into_diagnostic()
+                .wrap_err("initializing wallet config failed")?;
 
-    let ctx = onebox::Context::new(cfg, working_dir, static_files_root)?;
+            let config = onebox::config::build_config(&inputs)
+                .into_diagnostic()
+                .wrap_err("initializing wallet config failed")?;
 
-    match &cli.command {
-        Commands::Init => {
+            let ctx = onebox::Context::new(config, None, args.static_files)
+                .into_diagnostic()
+                .wrap_err("loading context failed")?;
+
             onebox::init(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("initializing wallet config failed")?;
         }
         Commands::Pull => {
+            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
+
             onebox::pull(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("pulling wallet resources failed")?;
         }
         Commands::Up => {
+            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
+
             onebox::up(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("turning wallet up failed")?;
         }
         Commands::Health => {
+            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
+
             onebox::health(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("checking wallet health failed")?;
         }
         Commands::Down => {
+            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
+
             onebox::down(&ctx)
                 .await
                 .into_diagnostic()
                 .wrap_err("turning wallet down failed")?;
         }
         Commands::Prune => {
+            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
+
             onebox::prune(&ctx)
                 .await
                 .into_diagnostic()

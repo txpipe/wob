@@ -1,12 +1,45 @@
+use std::path::PathBuf;
+
 use config as framework;
 use serde::{Deserialize, Serialize};
+use strum_macros::EnumString;
+use tracing::instrument;
 
-use crate::Error;
+use crate::{providers, Error};
 
-#[derive(Clone, Deserialize, Serialize)]
+pub struct InitInputs {
+    pub name: String,
+    pub network: crate::config::WellknownNetwork,
+    pub enabled_providers: Vec<String>,
+}
+
+#[instrument(skip_all)]
+pub fn build_config(inputs: &InitInputs) -> Result<Config, Error> {
+    let config = crate::config::Config {
+        name: inputs.name.to_owned(),
+        carp: providers::carp::Config::build(&inputs),
+        node: providers::node::Config::build(&inputs),
+        ogmios: providers::ogmios::Config::build(&inputs),
+        proxy: providers::proxy::Config::build(&inputs),
+        scrolls: providers::scrolls::Config::build(&inputs),
+        ..Default::default()
+    };
+
+    let content = toml::to_string(&config).map_err(Error::other)?;
+    std::fs::write(PathBuf::from("wob.toml"), content).map_err(Error::file_system)?;
+
+    Ok(config)
+}
+
+#[derive(Clone, Deserialize, Serialize, EnumString)]
 pub enum WellknownNetwork {
+    #[strum(ascii_case_insensitive)]
     Mainnet,
+
+    #[strum(ascii_case_insensitive)]
     PreProd,
+
+    #[strum(ascii_case_insensitive)]
     Preview,
 }
 
@@ -19,12 +52,11 @@ pub struct NetworkConfig {
 pub struct Config {
     pub name: String,
     pub network: NetworkConfig,
-    pub proxy: Option<crate::providers::proxy::Config>,
-    pub carp: Option<crate::providers::carp::Config>,
-    pub blockfrost: Option<crate::providers::blockfrost::Config>,
-    pub scrolls: Option<crate::providers::scrolls::Config>,
-    pub ogmios: Option<crate::providers::ogmios::Config>,
-    pub node: Option<crate::providers::node::Config>,
+    pub proxy: providers::proxy::Config,
+    pub carp: providers::carp::Config,
+    pub scrolls: providers::scrolls::Config,
+    pub ogmios: providers::ogmios::Config,
+    pub node: providers::node::Config,
 }
 
 impl Default for Config {
@@ -37,7 +69,6 @@ impl Default for Config {
             name: "onebox".to_owned(),
             proxy: Default::default(),
             carp: Default::default(),
-            blockfrost: Default::default(),
             scrolls: Default::default(),
             ogmios: Default::default(),
             node: Default::default(),
@@ -45,11 +76,9 @@ impl Default for Config {
     }
 }
 
-pub fn load(path: Option<&str>) -> Result<Config, Error> {
-    let path = path.unwrap_or("./wob.toml");
-
+pub fn load(path: &PathBuf) -> Result<Config, Error> {
     let values = framework::Config::builder()
-        .add_source(config::File::with_name(path))
+        .add_source(config::File::with_name(path.to_str().unwrap()))
         .add_source(framework::Environment::with_prefix("WOB"))
         .build()
         .map_err(Error::config)?;

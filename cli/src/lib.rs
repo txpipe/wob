@@ -1,7 +1,7 @@
 mod core;
-mod providers;
 
 pub mod config;
+pub mod providers;
 
 #[cfg(test)]
 mod tests;

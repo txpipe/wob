@@ -3,7 +3,11 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
+use crate::config::InitInputs;
+
 use super::prelude::*;
+
+pub const PROVIDER_ID: &str = "carp";
 
 const DEFAULT_IMAGE: &str = "dcspark/carp:latest";
 
@@ -11,6 +15,15 @@ const DEFAULT_IMAGE: &str = "dcspark/carp:latest";
 pub struct Config {
     pub enabled: bool,
     pub image: Option<String>,
+}
+
+impl Config {
+    pub fn build(inputs: &InitInputs) -> Self {
+        Self {
+            enabled: inputs.enabled_providers.iter().any(|x| x == PROVIDER_ID),
+            ..Default::default()
+        }
+    }
 }
 
 fn define_image(config: &Config) -> &str {
@@ -94,7 +107,7 @@ pub async fn up_indexer(ctx: &Context, config: &Config) -> Result<(), Error> {
     let carp_host_config = HostConfig {
         mounts: Some(ctx.define_mounts()),
         network_mode: Some(ctx.define_network_name()),
-        memory_reservation: Some(536870912),
+        memory: Some(1_500_000_000),
         port_bindings: Some(carp_port_bindings),
         ..Default::default()
     };

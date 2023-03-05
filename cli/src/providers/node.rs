@@ -3,7 +3,11 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};
 
+use crate::config::InitInputs;
+
 use super::prelude::*;
+
+pub const PROVIDER_ID: &str = "node";
 
 const DEFAULT_IMAGE: &str = "inputoutput/cardano-node:latest";
 
@@ -11,6 +15,15 @@ const DEFAULT_IMAGE: &str = "inputoutput/cardano-node:latest";
 pub struct Config {
     pub enabled: bool,
     pub image: Option<String>,
+}
+
+impl Config {
+    pub fn build(inputs: &InitInputs) -> Self {
+        Self {
+            enabled: inputs.enabled_providers.iter().any(|x| x == PROVIDER_ID),
+            ..Default::default()
+        }
+    }
 }
 
 fn define_image(config: &Config) -> &str {
