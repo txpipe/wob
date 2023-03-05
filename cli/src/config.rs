@@ -11,6 +11,8 @@ pub struct InitInputs {
     pub name: String,
     pub network: crate::config::WellknownNetwork,
     pub enabled_providers: Vec<String>,
+    pub blockfrost_api_key: Option<String>,
+    pub token_registry_url: Option<String>,
 }
 
 #[instrument(skip_all)]
