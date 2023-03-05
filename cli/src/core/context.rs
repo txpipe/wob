@@ -1,6 +1,6 @@
 use std::{
     collections::{hash_map::RandomState, HashMap},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use bollard::{
@@ -33,11 +33,29 @@ pub struct Context {
 }
 
 impl Context {
+    pub fn load(
+        config_path: Option<PathBuf>,
+        working_dir: Option<PathBuf>,
+        static_files_root: Option<PathBuf>,
+    ) -> Result<Self, Error> {
+        let config_path = config_path.unwrap_or(PathBuf::from("./wob.toml"));
+
+        let config = crate::config::load(&config_path)?;
+
+        Context::new(config, working_dir, static_files_root)
+    }
+
     pub fn new(
         config: Config,
-        working_dir: PathBuf,
-        static_files_root: PathBuf,
+        working_dir: Option<PathBuf>,
+        static_files_root: Option<PathBuf>,
     ) -> Result<Self, Error> {
+        let current_dir = std::env::current_dir().map_err(Error::file_system)?;
+        let working_dir = working_dir.unwrap_or(current_dir);
+
+        let static_files_root =
+            static_files_root.unwrap_or_else(|| PathBuf::from("/etc/wob/files"));
+
         let docker = Docker::connect_with_socket_defaults().map_err(Error::docker)?;
 
         Ok(Self {

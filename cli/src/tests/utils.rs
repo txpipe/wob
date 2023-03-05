@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crate::{config::Config, Context};
 use bollard::Docker;
 
@@ -22,10 +20,7 @@ pub fn test_config() -> Config {
 
 pub fn test_context() -> Context {
     let config = test_config();
-    let working_dir = std::env::current_dir().unwrap();
-    let static_files_root = PathBuf::from("/etc/wob/files");
-
-    Context::new(config, working_dir, static_files_root).unwrap()
+    Context::new(config, None, None).unwrap()
 }
 
 pub async fn assert_image_exists(docker: &Docker, image_name: &str) {
