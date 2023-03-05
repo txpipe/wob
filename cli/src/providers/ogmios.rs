@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use tracing::{info, instrument};
+use tracing::instrument;
 
 use crate::config::InitInputs;
 
@@ -39,11 +39,6 @@ pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
         PathBuf::from("ogmios/config.json"),
     )?;
 
-    Ok(())
-}
-
-#[instrument(name = "ogmios", skip_all)]
-pub async fn pull(ctx: &Context, config: &Config) -> Result<(), Error> {
     let image_name = define_image(config);
 
     ctx.pull_image(image_name).await?;
@@ -104,12 +99,12 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 }
 
 #[instrument(name = "ogmios", skip_all)]
-pub async fn down(ctx: &Context, config: &Config) -> Result<(), Error> {
+pub async fn down(ctx: &Context, _config: &Config) -> Result<(), Error> {
     Ok(())
 }
 
 #[instrument(name = "ogmios", skip_all)]
-pub async fn health(ctx: &Context, config: &Config) -> Result<(), Error> {
+pub async fn health(ctx: &Context, _config: &Config) -> Result<(), Error> {
     ctx.container_health("ogmios").await?;
 
     Ok(())

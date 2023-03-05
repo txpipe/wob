@@ -22,7 +22,6 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Init(InitArgs),
-    Pull,
     Up,
     Health,
     Down,
@@ -66,14 +65,6 @@ async fn main() -> miette::Result<()> {
                 .await
                 .into_diagnostic()
                 .wrap_err("initializing wallet config failed")?;
-        }
-        Commands::Pull => {
-            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
-
-            onebox::pull(&ctx)
-                .await
-                .into_diagnostic()
-                .wrap_err("pulling wallet resources failed")?;
         }
         Commands::Up => {
             let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;

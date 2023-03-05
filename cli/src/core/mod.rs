@@ -74,13 +74,6 @@ pub async fn init(ctx: &Context) -> Result<(), Error> {
 }
 
 #[instrument(skip_all)]
-pub async fn pull(ctx: &Context) -> Result<(), Error> {
-    for_every_enabled_provider!(pull, &ctx);
-
-    Ok(())
-}
-
-#[instrument(skip_all)]
 pub async fn prune(ctx: &Context) -> Result<(), Error> {
     for_every_enabled_provider!(prune, &ctx);
 
