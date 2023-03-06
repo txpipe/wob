@@ -148,3 +148,10 @@ pub async fn health(ctx: &Context, _config: &Config) -> Result<(), Error> {
 
     Ok(())
 }
+
+#[instrument(name = "node", skip_all)]
+pub async fn logs(ctx: &Context, _config: &Config) -> Result<(), Error> {
+    ctx.container_logs("node").await?;
+
+    Ok(())
+}

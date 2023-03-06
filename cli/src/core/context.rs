@@ -4,7 +4,7 @@ use std::{
 };
 
 use bollard::{
-    container::CreateContainerOptions,
+    container::{CreateContainerOptions, LogsOptions},
     image::CreateImageOptions,
     network::CreateNetworkOptions,
     service::{HealthStatusEnum, Mount, MountTypeEnum, PortBinding, ProgressDetail},
@@ -234,6 +234,50 @@ impl Context {
         }
 
         return port_bindings;
+    }
+
+    pub async fn container_logs(&self, suffix: &str) -> Result<(), Error> {
+        let name = self.define_container_name(suffix);
+
+        if !self.container_exists(&name).await? {
+            warn!("container doesn't exist");
+            return Ok(());
+        }
+
+        let opts = LogsOptions::<&str> {
+            follow: true,
+            stderr: true,
+            stdout: true,
+            ..Default::default()
+        };
+
+        let mut progress = self.docker.logs(&name, Some(opts));
+        info!("log stream started");
+
+        while let Some(res) = progress.next().await {
+            match res {
+                Ok(log) => {
+                    let msg = match log {
+                        bollard::container::LogOutput::StdErr { message } => message,
+                        bollard::container::LogOutput::StdOut { message } => message,
+                        bollard::container::LogOutput::StdIn { message } => message,
+                        bollard::container::LogOutput::Console { message } => message,
+                    };
+
+                    let utf8 = String::from_utf8_lossy(&msg);
+
+                    info!("{}", utf8);
+                }
+                Err(err) => {
+                    error!("error retrieving logs from container {:?}", err);
+                    return Err(Error::docker(err));
+                }
+            }
+        }
+
+        info!("image logs completed");
+
+        Ok(())
     }
 
     pub fn define_mounts(&self) -> Vec<Mount> {

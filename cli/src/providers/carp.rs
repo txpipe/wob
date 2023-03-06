@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use futures::future::join3;
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
@@ -191,6 +192,23 @@ pub async fn health(ctx: &Context, _config: &Config) -> Result<(), Error> {
     ctx.container_health("carp").await?;
     ctx.container_health("carp-postgres").await?;
     ctx.container_health("carp-webserver").await?;
+
+    Ok(())
+}
+
+#[instrument(name = "carp", skip_all)]
+pub async fn logs(ctx: &Context, _config: &Config) -> Result<(), Error> {
+    let x = join3(
+        ctx.container_logs("carp"),
+        ctx.container_logs("carp-postgres"),
+        ctx.container_logs("carp-webserver"),
+    );
+
+    let (a, b, c) = x.await;
+
+    a?;
+    b?;
+    c?;
 
     Ok(())
 }
