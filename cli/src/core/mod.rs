@@ -1,3 +1,4 @@
+use futures::future::{join4, join5};
 use miette::Diagnostic;
 use thiserror::Error;
 
@@ -66,9 +67,27 @@ macro_rules! for_every_enabled_provider {
     }};
 }
 
+macro_rules! for_every_provider_concurrently {
+    ($func:ident, $ctx:expr) => {{
+        let x = join4(
+            crate::providers::node::$func($ctx, &$ctx.config.node),
+            crate::providers::ogmios::$func($ctx, &$ctx.config.ogmios),
+            crate::providers::carp::$func($ctx, &$ctx.config.carp),
+            crate::providers::proxy::$func($ctx, &$ctx.config.proxy),
+        );
+
+        let (a, b, c, d) = x.await;
+
+        a?;
+        b?;
+        c?;
+        d?;
+    }};
+}
+
 #[instrument(skip_all)]
 pub async fn init(ctx: &Context) -> Result<(), Error> {
-    for_every_enabled_provider!(init, &ctx);
+    for_every_provider_concurrently!(init, &ctx);
 
     Ok(())
 }
@@ -100,7 +119,14 @@ pub async fn down(ctx: &Context) -> Result<(), Error> {
 
 #[instrument(skip_all)]
 pub async fn health(ctx: &Context) -> Result<(), Error> {
-    for_every_enabled_provider!(health, &ctx);
+    for_every_provider_concurrently!(health, &ctx);
+
+    Ok(())
+}
+
+#[instrument(skip_all)]
+pub async fn logs(ctx: &Context) -> Result<(), Error> {
+    for_every_provider_concurrently!(logs, &ctx);
 
     Ok(())
 }

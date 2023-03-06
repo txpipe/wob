@@ -121,3 +121,10 @@ pub async fn health(ctx: &Context, _config: &Config) -> Result<(), Error> {
 
     Ok(())
 }
+
+#[instrument(name = "ogmios", skip_all)]
+pub async fn logs(ctx: &Context, _config: &Config) -> Result<(), Error> {
+    ctx.container_logs("ogmios").await?;
+
+    Ok(())
+}

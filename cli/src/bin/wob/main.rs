@@ -24,6 +24,7 @@ enum Commands {
     Init(InitArgs),
     Up,
     Health,
+    Logs,
     Down,
     Prune,
 }
@@ -81,6 +82,14 @@ async fn main() -> miette::Result<()> {
                 .await
                 .into_diagnostic()
                 .wrap_err("checking wallet health failed")?;
+        }
+        Commands::Logs => {
+            let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
+
+            onebox::logs(&ctx)
+                .await
+                .into_diagnostic()
+                .wrap_err("checking wallet logs failed")?;
         }
         Commands::Down => {
             let ctx = onebox::Context::load(cli.config, None, None).into_diagnostic()?;
