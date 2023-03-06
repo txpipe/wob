@@ -5,7 +5,7 @@ import {
     Asset,
     AssetName,
     Block,
-    CIP25,
+    Cip25Response,
     Dex,
     DexLastPrice,
     DexMeanPrice,
@@ -30,7 +30,7 @@ export class CarpService {
         return this.dataSource.getBlockLatest(offset);
     }
 
-    public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]> {
+    public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<Cip25Response> {
         return this.dataSource.getMetadataNft(assets);
     }
 

@@ -14,6 +14,15 @@ export class TransactionController extends Controller {
         super();
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     *
+     * Ordered by `<block.height, transaction.tx_index>`
+     *
+     * Note: this endpoint only returns txs that are in a block. Use another tool to see mempool for txs not in a block
+     * @param requestBody
+     * @returns in block txs ordered by `<block.height, transaction.tx_index>`
+     */
     @Example<TransactionData[]>([
         {
             transaction: {
@@ -43,6 +52,17 @@ export class TransactionController extends Controller {
         );
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     *
+     * Get the outputs for given `<tx hash, output index>` pairs.
+     *
+     * This endpoint will return both used AND unused outputs
+     *
+     * Note: this endpoint only returns txs that are in a block. Use another tool to see mempool for txs not in a block
+     * @param requestBody
+     * @returns in bloxk txs, both used AND unused outputs, for a given `<tx hash, output index>` pairs.
+     */
     @Example<UtxoData[]>([
         {
             utxo: {
@@ -67,6 +87,14 @@ export class TransactionController extends Controller {
         return this.carpService.getTransactionOutput(requestBody.utxoPointers);
     }
 
+    /**
+     * Implemented by `Blockfrost` Service Provider
+     *
+     * Submit an already serialized transaction to the network.
+     *
+     * @param requestBody
+     * @returns transaction id
+     */
     @Example<string>('d1662b24fa9fe985fc2dce47455df399cb2e31e1e1819339e885801cc3578908')
     @Post('/submit')
     public async transactionSubmit(@Body() requestBody: TransactionSubmitRequestBody): Promise<string> {

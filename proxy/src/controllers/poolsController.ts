@@ -5,7 +5,7 @@ import { inject } from 'inversify';
 import { ProvideSingleton } from '../ioc';
 
 @Tags('Pool')
-@Route('pool')
+@Route('pools')
 @ProvideSingleton(PoolController)
 export class PoolController extends Controller {
     constructor(@inject(BlockfrostService) private blockfrostService: BlockfrostService) {
@@ -13,9 +13,12 @@ export class PoolController extends Controller {
     }
 
     /**
-     * Returns the information of a pool given an id
-     * @param poolId 
-     * @returns 
+     * Implemented by `Blockfrost` Service Provider
+     *
+     * Pool information.
+     *
+     * @param poolId Pool Id
+     * @returns Pool information.
      */
     @Example<Pool>({
         pool_id: 'pool16h8ugt8k0a4kxa5g6x062zjrgfjc7cehpw0ze8374axlul76932',
@@ -44,8 +47,11 @@ export class PoolController extends Controller {
     }
 
     /**
-     * Returns a list of pool ids
-     * @returns 
+     * Implemented by `Blockfrost` Service Provider
+     *
+     * List of registered stake pools.
+     *
+     * @returns List of registered stake pools
      */
     @Example<string[]>([
         'pool1pu5jlj4q9w9jlxeu370a3c9myx47md5j5m2str0naunn2q3lkdy',

@@ -13,6 +13,13 @@ export class AccountController extends Controller {
         super();
     }
 
+    /**
+     * Implemented by `Ogmios` Service Provider
+     * 
+     * Returns the delegation and rewards by account given a list of addresses
+     * @param requestBody 
+     * @returns delegation and rewards by account
+     */
     @Example<{ [account: string]: DelegationAndRewards }>({
         '7353517eef637f3df6f2e8a49e013676c4b003320ceab31797229cc6': {
             delegate: 'pool132jxjzyw4awr3s75ltcdx5tv5ecv6m042306l630wqjckhfm32r',

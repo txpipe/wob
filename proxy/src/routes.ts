@@ -13,7 +13,7 @@ import { BlockController } from './controllers/blockController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { DexController } from './controllers/dexController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { PoolController } from './controllers/poolController';
+import { PoolController } from './controllers/poolsController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { TransactionController } from './controllers/transactionController';
 import { iocContainer } from './ioc';
@@ -179,18 +179,19 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Cip25Metadata": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Cip25Response": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"cip25":{"dataType":"nestedObjectLiteral","nestedProperties":{},"additionalProperties":{"dataType":"nestedObjectLiteral","nestedProperties":{},"additionalProperties":{"ref":"Cip25Metadata"}},"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "AssetName": {
         "dataType": "refAlias",
         "type": {"dataType":"string","validators":{"pattern":{"value":"[0-9a-fA-F]{0,64}"}}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "CIP25": {
-        "dataType": "refObject",
-        "properties": {
-            "policyId": {"dataType":"string","required":true},
-            "assets": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"metadata":{"dataType":"string","required":true},"name":{"ref":"AssetName","required":true}}},"required":true},
-        },
-        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "MetadataNftRequestBody": {
@@ -670,7 +671,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/pool/:poolId',
+        app.get('/pools/:poolId',
             ...(fetchMiddlewares<RequestHandler>(PoolController)),
             ...(fetchMiddlewares<RequestHandler>(PoolController.prototype.getPoolInfo)),
 
@@ -700,7 +701,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/pool',
+        app.get('/pools',
             ...(fetchMiddlewares<RequestHandler>(PoolController)),
             ...(fetchMiddlewares<RequestHandler>(PoolController.prototype.getPools)),
 
