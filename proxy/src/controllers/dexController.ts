@@ -13,6 +13,15 @@ export class DexController extends Controller {
         super();
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     *
+     * Gets the last price for the given liquidity pool and asset pairs.
+     * Mean is not AVG from the last values, but the remaining amount of assets on the pool output.
+     *
+     * @param requestBody
+     * @returns last price for the given liquidity pool and asset pairs.
+     */
     @Example<DexLastPrice[]>([
         {
             dex: Dex.WingRiders,
@@ -33,6 +42,15 @@ export class DexController extends Controller {
         return this.carpService.getLastPrice(requestBody.assetPairs, requestBody.type);
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     *
+     * Gets the mean prices for the given liquidity pool and asset pairs.
+     * Mean is not AVG from the last values, but the remaining amount of assets on the pool output.
+     *
+     * @param requestBody
+     * @returns mean prices for the given liquidity pool and asset pairs.
+     */
     @Example<DexMeanPrice[]>([
         {
             amount2: '2042352568679',
@@ -54,6 +72,13 @@ export class DexController extends Controller {
         return this.carpService.getMeanPrice(requestBody.assetPairs, requestBody.dexes, requestBody.limit);
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     *
+     * Gets the swap prices for the given liquidity pool and asset pairs.
+     * @param requestBody
+     * @returns swap prices for the given liquidity pool and asset pairs.
+     */
     @Example<DexSwap[]>([
         {
             direction: Direction.Buy,

@@ -12,6 +12,14 @@ export class BlockController extends Controller {
         super();
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     *
+     * Get the latest block. Useful for checking synchronization process and pagination
+     *
+     * @param offset
+     * @returns latest block information
+     */
     @Example<Block>({
         slot: 4924800,
         epoch: 209,

@@ -20,6 +20,14 @@ export class AddressController extends Controller {
         super();
     }
 
+    /**
+     * Implemented by `Scrolls` Service Provider
+     * 
+     * Returns the address given a handle
+     * 
+     * @param handle 
+     * @returns address for a handle
+     */
     @Example<AdaHandle[]>([
         {
             key: 'todo',
@@ -31,6 +39,14 @@ export class AddressController extends Controller {
         return this.scrollsService.getAddressForHandle(handle);
     }
 
+    /**
+     * Implemented by `Blockfrost` Service Provider
+     * 
+     * Obtain information about the reward history of a specific account.
+     * 
+     * @param stakeAddress 
+     * @returns reward history of a specific account
+     */
     @Example<Reward[]>([
         {
             epoch: 215,
@@ -74,6 +90,18 @@ export class AddressController extends Controller {
         return this.blockfrostService.getRewardsHistory(stakeAddress);
     }
 
+    /**
+     * Implemented by `CARP` Service Provider
+     * 
+     * Ordered lexicographically (order is not maintained).
+     * 
+     * Warning: the pagination on this endpoint is NOT whether or not an address was used during this block interval,
+     * but rather whether or not the address was first used within this interval.
+     * 
+     * Note: this endpoint only returns addresses that are in a block. Use another tool to see mempool information
+     * @param requestBody 
+     * @returns 
+     */
     @Example<string[]>([
         '8200581c8baf48931c5187cd59fde553f4e7da2e1a2aa9202ec6e67815cb3f8a',
         'stake1ux236z4g4r4pztn5v69txyj2yq6a3esq5x4p4stxydra7zsnv25ue',

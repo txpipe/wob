@@ -11,6 +11,9 @@ export type AddressUsedRequestBody = {
 };
 
 export type MetadataNftRequestBody = {
+    /**
+     * @example { "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f": ["42657272794e617679"] }
+     */
     assets: { [policyId: string]: AssetName[] };
 };
 

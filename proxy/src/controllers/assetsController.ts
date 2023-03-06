@@ -1,6 +1,6 @@
 import { Get, Route, Controller, Path, Tags, Post, Body, Example } from 'tsoa';
 import { MetadataNftRequestBody } from '../model/requests';
-import { CIP25 } from '../model/carp';
+import { Cip25Response } from '../model/carp';
 import { TokenInfo } from '../model/tokenRegistry';
 import { CarpService } from '../services/carpService';
 import { TokenRegistryService } from '../services/tokenRegistryService';
@@ -18,6 +18,13 @@ export class AssetsController extends Controller {
         super();
     }
 
+    /**
+     * Implemented by `Token Registry` Service Provider
+     * 
+     * @param policyId 
+     * @param assetName 
+     * @returns token information
+     */
     @Example<TokenInfo>({
         name: {
             signatures: [
@@ -92,20 +99,32 @@ export class AssetsController extends Controller {
         return this.tokenRegistryService.getTokenMetadata(policyId, assetName);
     }
 
-    @Example<CIP25[]>([
-        {
-            policyId: 'b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f',
-            assets: [
-                {
-                    name: '42657272794e617679',
-                    metadata:
-                        'a365636f6c6f72672330303030383065696d616765783a697066733a2f2f697066732f516d534b593167317a5375506b3536635869324b38524e766961526b44485633505a756a7474663755676b343379646e616d656a4265727279204e617679',
-                },
-            ],
-        },
-    ])
+    /**
+     * Implemented by `CARP` Service Provider
+     * 
+     * Gets the CIP25 metadata for given <policy, asset_name> pairs
+     * 
+     * Note: policy IDs and asset names MUST be in hex strings. Do not use UTF8 asset names.
+     * 
+     * Note: This endpoint returns the NFT metadata as a CBOR object and NOT JSON.
+     * You may expect a JSON object, but actually Cardano has no concept of on-chain JSON.
+     * In fact, on-chain JSON is not even possible!
+     * Instead, Cardano stores metadata as CBOR which can then be converted to JSON
+     * The conversion of CBOR to JSON is project-dependent, and so Carp instead returns the raw cbor
+     * It's up to you to choose how you want to do the JSON conversion.
+     * The common case is handled inside the Carp client library.
+     * @param requestBody 
+     * @returns CIP25 metadata for given <policy, asset_name> pairs
+     */
+    @Example<Cip25Response>({
+        "cip25": {
+          "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f": {
+            "42657272794e617679": "a365636f6c6f72672330303030383065696d616765783a697066733a2f2f697066732f516d534b593167317a5375506b3536635869324b38524e766961526b44485633505a756a7474663755676b343379646e616d656a4265727279204e617679"
+          }
+        }
+      })
     @Post('/metadata/nft')
-    public async getMetadataNft(@Body() requestBody: MetadataNftRequestBody): Promise<CIP25[]> {
+    public async getMetadataNft(@Body() requestBody: MetadataNftRequestBody): Promise<Cip25Response> {
         return this.carpService.getMetadataNft(requestBody.assets);
     }
 }

@@ -6,7 +6,7 @@ import {
     Asset,
     AssetName,
     Block,
-    CIP25,
+    Cip25Response,
     Dex,
     DexLastPrice,
     DexMeanPrice,
@@ -24,7 +24,7 @@ dotenv.config();
 export interface CarpDataSource {
     getAddressUsed(addresses: Address[], after: AddressAfter, untilBlock: string): Promise<string[]>;
     getBlockLatest(offset: number): Promise<Block | undefined>;
-    getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]>;
+    getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<Cip25Response>;
     getTransactionHistory(
         addresses: string[],
         after: AddressAfter,
@@ -111,7 +111,7 @@ export class CarpAPIDataSource implements CarpDataSource {
      * Gets the CIP25 metadata for given <policy, asset_name> pairs
      * @param assets
      */
-    public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<CIP25[]> {
+    public async getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<Cip25Response> {
         const requestConfig: AxiosRequestConfig = {
             method: 'POST',
             url: `${this.host}/metadata/nft`,
@@ -120,17 +120,7 @@ export class CarpAPIDataSource implements CarpDataSource {
 
         try {
             const response = await axios(requestConfig);
-
-            if (response.data.cip25) {
-                return Object.entries(response.data.cip25).map(([policyId, assets]) => {
-                    const cip25: CIP25 = {
-                        policyId,
-                        assets: Object.entries(assets as { name: string; metadata: string }).map(([name, metadata]) => ({ name, metadata })),
-                    };
-                    return cip25;
-                });
-            }
-            return [];
+            return response.data;
         } catch (err: any) {
             throw new BadRequestError(err.response?.data?.message || `unable to post metadata nft`);
         }

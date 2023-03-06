@@ -75,21 +75,19 @@ export interface AddressAfter {
 }
 
 /**
- * @pattern [0-9a-fA-F]{56}
- * @example "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f"
- */
-export type PolicyId = string;
-
-/**
  * @pattern [0-9a-fA-F]{0,64}
  * @example "42657272794e617679"
  */
 export type AssetName = string;
 
-export interface CIP25 {
-    policyId: string;
-    assets: { name: AssetName; metadata: string }[];
-}
+// export interface CIP25 {
+//     /**
+//  * @pattern [0-9a-fA-F]{56}
+//  * @example "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f"
+//  */
+//     policyId: string;
+//     assets: { name: AssetName; metadata: string }[];
+// }
 
 export interface UtxoPointer {
     /**
@@ -136,31 +134,42 @@ export interface UtxoData {
     block: Block;
 }
 
-export type Asset = {
-    policyId: PolicyId;
-    assetName: AssetName;
-} | null;
-
-/**
- * @pattern [1-9][0-9]*
- * @example "2042352568679"
- */
-export type Amount = string;
-
-export enum Dex {
-    WingRiders = 'WingRiders',
-    SundaeSwap = 'SundaeSwap',
-    MinSwap = 'MinSwap',
-}
-
 export enum PriceType {
-    Buy = 'buy',
-    Sell = 'sell',
+    Buy = "buy",
+    Sell = "sell",
     /**
      * Mean is not AVG from the last values, but the remaining amount of assets on the pool output
      */
-    Mean = 'mean',
-}
+    Mean = "mean",
+};
+
+export enum Direction {
+    Buy = 'buy',
+    Sell = 'sell',
+  };
+  
+  export enum Dex {
+    WingRiders = 'WingRiders',
+    SundaeSwap = 'SundaeSwap',
+    MinSwap = 'MinSwap',
+  };
+  
+/**
+ * @pattern [0-9a-fA-F]{56}
+ * @example "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f"
+ */
+export type PolicyId = string;
+
+  export type Asset = {
+    policyId: PolicyId;
+    assetName: AssetName;
+  } | null;
+  
+  /**
+   * @pattern [1-9][0-9]*
+   * @example "2042352568679"
+   */
+  export type Amount = string;
 
 export type DexLastPrice = {
     asset1: Asset;
@@ -177,11 +186,6 @@ export type DexMeanPrice = {
     asset2: Asset;
     amount1: Amount;
     amount2: Amount;
-};
-
-export enum Direction {
-    Buy = 'buy',
-    Sell = 'sell',
 }
 
 export type DexSwap = {
@@ -192,4 +196,14 @@ export type DexSwap = {
     amount1: Amount;
     amount2: Amount;
     direction: Direction;
-};
+}
+
+type Cip25Metadata = string;
+
+export type Cip25Response = {
+    // https://github.com/lukeautry/tsoa/issues/1204#issuecomment-1133229741
+    /**
+     * @example { "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f": { "42657272794e617679": "a365636f6c6f72672330303030383065696d616765783a697066733a2f2f697066732f516d534b593167317a5375506b3536635869324b38524e766961526b44485633505a756a7474663755676b343379646e616d656a4265727279204e617679" }}
+     */
+    cip25: { [policyId: string]: { [assetName: string]: Cip25Metadata } };
+  };
