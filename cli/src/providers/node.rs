@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-use tracing::instrument;
+use tracing::{debug, instrument};
 
 use crate::config::InitInputs;
 
@@ -9,7 +9,8 @@ use super::prelude::*;
 
 pub const PROVIDER_ID: &str = "node";
 
-const DEFAULT_IMAGE: &str = "inputoutput/cardano-node:latest";
+const DEFAULT_IMAGE_AMD64: &str = "inputoutput/cardano-node:latest";
+const DEFAULT_IMAGE_ARM64: &str = "ghcr.io/demeter-run/cardano-node-arm64:latest";
 
 #[derive(Default, Clone, Deserialize, Serialize)]
 pub struct Config {
@@ -27,7 +28,16 @@ impl Config {
 }
 
 fn define_image(config: &Config) -> &str {
-    config.image.as_deref().unwrap_or(DEFAULT_IMAGE)
+    if let Some(img) = &config.image {
+        return img;
+    }
+
+    debug!("detected arch: {}", std::env::consts::ARCH);
+
+    match std::env::consts::ARCH {
+        "arm" | "aarch64" => DEFAULT_IMAGE_ARM64,
+        _ => DEFAULT_IMAGE_AMD64,
+    }
 }
 
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
