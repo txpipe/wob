@@ -15,7 +15,7 @@ In the current implementation, we rely on the following providers:
 - `blockfrost`: for endpoints related with reward history, pool metadata and tx submission.
 - `ogmios`: for account state endpoints.
 - `scrolls`: for ada handle reference endpoints.
-- `proxy`: a API layer that exposes a REST wallet interface and routes each endpoint to the correct upstream provider.
+- `proxy`: an API layer that exposes a REST wallet interface and routes each endpoint to the correct upstream provider.
 
 WOB's main entry point is done through a CLI. This CLI provides the user with a way to initialize, start, stop, monitor and clean wallet resources.
 
@@ -74,3 +74,22 @@ The `prune` command will remove any persistent data associated with your wallet 
 ```sh
 wob prune
 ```
+
+## Proxy usage
+
+The `proxy` is the component in charge of routing the requests to the different providers which are implemented for full filling the requirements. It is implemented as an [Express application](https://expressjs.com/) in [NodeJs](https://nodejs.org/en/) following the Clean Architecture Principles.
+
+All routes can be found under the `Controllers` folder and are automatically generated from `Typescript` decorators by using the functionality provided by [tsoa](https://tsoa-community.github.io/docs/introduction.html).
+
+For running the `proxy` in development mode execute the following commands:
+
+```sh
+npm install
+npm run build
+npm run dev
+```
+
+The server will start listening in the `PORT` defined in the runtime environment variable named `PORT`. 
+
+Together with the server, [OpenAPI Specification](https://swagger.io/specification/) will be served at the route `/docs`. 
+
