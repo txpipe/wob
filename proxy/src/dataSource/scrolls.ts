@@ -33,9 +33,9 @@ export class ScrollsRedisDataSource implements ScrollsDataSource {
             await this.client.connect();
         }
 
-        const keys = (await this.client.sendCommand(['keys', `c.${handle}*`])) as string[];
+        const keys = (await this.client.sendCommand(['keys', `AdaHandle.${handle}*`])) as string[];
 
-        if (!keys) return [];
+        if (!keys || !keys.length) return [];
 
         const values = await this.client.mGet(keys);
 
@@ -43,7 +43,7 @@ export class ScrollsRedisDataSource implements ScrollsDataSource {
 
         const result = keys.map(k => {
             const item: AdaHandle = {
-                key: k.split('c.')[1],
+                key: k.split('AdaHandle.')[1],
                 value: values[index] || '',
             };
             index += 1;

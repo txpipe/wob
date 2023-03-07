@@ -1,0 +1,19 @@
+[source]
+type = "N2C"
+path = "/host/ipc/node.socket"
+
+[[reducers]]
+type = "AddressByAsset"
+key_prefix = "AdaHandle"
+policy_id_hex = "f0ff48bbb7bbe9d59a40f1ce90e9e9d0ff5002ec48f232b49ca0fb9a"
+convert_to_ascii = true
+
+[storage]
+type = "Redis"
+connection_params = "redis://scrolls-redis:6379"
+
+[chain]
+type = "Preprod"
+
+[intersect]
+type = "Origin"
