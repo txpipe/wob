@@ -2,10 +2,10 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { BadRequestError, NotFoundError } from '../api/errors';
 import {
     Address,
-    AddressAfter,
     Asset,
     AssetName,
     Block,
+    BlockTxPair,
     Cip25Response,
     Dex,
     DexLastPrice,
@@ -22,20 +22,32 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export interface CarpDataSource {
-    getAddressUsed(addresses: Address[], after: AddressAfter, untilBlock: string): Promise<string[]>;
+    getAddressUsed(addresses: Address[], after?: BlockTxPair, until?: string): Promise<string[]>;
     getBlockLatest(offset: number): Promise<Block | undefined>;
     getMetadataNft(assets: { [policyId: string]: AssetName[] }): Promise<Cip25Response>;
     getTransactionHistory(
         addresses: string[],
-        after: AddressAfter,
-        untilBlock: string,
+        after?: BlockTxPair,
+        until?: string,
         limit?: number,
         relationFilter?: number,
     ): Promise<TransactionData[]>;
     getTransactionOutput(utxoPointers: UtxoPointer[]): Promise<UtxoData[]>;
     getLastPrice(assetPairs: { asset1: Asset; asset2: Asset }[], type: PriceType): Promise<DexLastPrice[]>;
-    getMeanPrice(assetPairs: { asset1: Asset; asset2: Asset }[], dexes: Array<Dex>, limit?: number): Promise<DexMeanPrice[]>;
-    getSwapPrice(dexes: Array<Dex>, assetPairs: { asset1: Asset; asset2: Asset }[], limit?: number): Promise<DexSwap[]>;
+    getMeanPrice(
+        assetPairs: { asset1: Asset; asset2: Asset }[],
+        dexes: Array<Dex>,
+        after?: BlockTxPair,
+        until?: string,
+        limit?: number,
+    ): Promise<DexMeanPrice[]>;
+    getSwapPrice(
+        dexes: Array<Dex>,
+        assetPairs: { asset1: Asset; asset2: Asset }[],
+        after?: BlockTxPair,
+        until?: string,
+        limit?: number,
+    ): Promise<DexSwap[]>;
 }
 
 @ProvideSingleton(CarpAPIDataSource)
@@ -52,15 +64,15 @@ export class CarpAPIDataSource implements CarpDataSource {
     Note: this endpoint only returns addresses that are in a block.
    * @param addresses 
    * @param afterTx 
-   * @param afterBlock 
-   * @param untilBlock 
+   * @param after 
+   * @param until 
    * @returns 
    */
-    public async getAddressUsed(addresses: Address[], after: AddressAfter, untilBlock: string): Promise<string[]> {
+    public async getAddressUsed(addresses: Address[], after?: BlockTxPair, until?: string): Promise<string[]> {
         const data = {
             addresses,
             after,
-            untilBlock,
+            untilBlock: until,
         };
 
         const requestConfig: AxiosRequestConfig = {
@@ -130,24 +142,23 @@ export class CarpAPIDataSource implements CarpDataSource {
      * Ordered by <block.height, transaction.tx_index>
        Note: this endpoint only returns txs that are in a block. Use another tool to see mempool for txs not in a block
      * @param addresses 
-     * @param afterTx 
-     * @param afterBlock 
-     * @param untilBlock 
+     * @param after 
+     * @param until 
      * @param limit 
      * @param relationFilter 
      * @returns 
      */
     public async getTransactionHistory(
         addresses: Address[],
-        after: AddressAfter,
-        untilBlock: string,
+        after?: BlockTxPair,
+        until?: string,
         limit?: number,
         relationFilter?: number,
     ): Promise<TransactionData[]> {
         const data = {
             addresses,
             after,
-            untilBlock,
+            untilBlock: until,
             limit,
             relationFilter,
         };
@@ -231,13 +242,23 @@ export class CarpAPIDataSource implements CarpDataSource {
      * Executes a post to the carp api for getting the mean price
      * @param assetPairs
      * @param dexes
+     * @param after
+     * @param until
      * @param limit
      * @returns
      */
-    public async getMeanPrice(assetPairs: { asset1: Asset; asset2: Asset }[], dexes: Array<Dex>, limit?: number): Promise<DexMeanPrice[]> {
+    public async getMeanPrice(
+        assetPairs: { asset1: Asset; asset2: Asset }[],
+        dexes: Array<Dex>,
+        after?: BlockTxPair,
+        until?: string,
+        limit?: number,
+    ): Promise<DexMeanPrice[]> {
         const data = {
             assetPairs,
             dexes,
+            after,
+            untilBlock: until,
             limit,
         };
 
@@ -264,13 +285,23 @@ export class CarpAPIDataSource implements CarpDataSource {
      * Executes a post to the carp api for getting the swap price
      * @param dexes
      * @param assetPairs
+     * @param after
+     * @param until
      * @param limit
      * @returns
      */
-    public async getSwapPrice(dexes: Array<Dex>, assetPairs: { asset1: Asset; asset2: Asset }[], limit?: number): Promise<DexSwap[]> {
+    public async getSwapPrice(
+        dexes: Array<Dex>,
+        assetPairs: { asset1: Asset; asset2: Asset }[],
+        after?: BlockTxPair,
+        until?: string,
+        limit?: number,
+    ): Promise<DexSwap[]> {
         const data = {
             assetPairs,
             dexes,
+            after,
+            untilBlock: until,
             limit,
         };
 

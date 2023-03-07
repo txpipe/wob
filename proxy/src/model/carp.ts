@@ -69,25 +69,11 @@ export interface Block {
     indexInBlock: number;
 }
 
-export interface AddressAfter {
-    tx: string;
-    block: string;
-}
-
 /**
  * @pattern [0-9a-fA-F]{0,64}
  * @example "42657272794e617679"
  */
 export type AssetName = string;
-
-// export interface CIP25 {
-//     /**
-//  * @pattern [0-9a-fA-F]{56}
-//  * @example "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f"
-//  */
-//     policyId: string;
-//     assets: { name: AssetName; metadata: string }[];
-// }
 
 export interface UtxoPointer {
     /**
@@ -135,41 +121,41 @@ export interface UtxoData {
 }
 
 export enum PriceType {
-    Buy = "buy",
-    Sell = "sell",
+    Buy = 'buy',
+    Sell = 'sell',
     /**
      * Mean is not AVG from the last values, but the remaining amount of assets on the pool output
      */
-    Mean = "mean",
-};
+    Mean = 'mean',
+}
 
 export enum Direction {
     Buy = 'buy',
     Sell = 'sell',
-  };
-  
-  export enum Dex {
+}
+
+export enum Dex {
     WingRiders = 'WingRiders',
     SundaeSwap = 'SundaeSwap',
     MinSwap = 'MinSwap',
-  };
-  
+}
+
 /**
  * @pattern [0-9a-fA-F]{56}
  * @example "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f"
  */
 export type PolicyId = string;
 
-  export type Asset = {
+export type Asset = {
     policyId: PolicyId;
     assetName: AssetName;
-  } | null;
-  
-  /**
-   * @pattern [1-9][0-9]*
-   * @example "2042352568679"
-   */
-  export type Amount = string;
+} | null;
+
+/**
+ * @pattern [1-9][0-9]*
+ * @example "2042352568679"
+ */
+export type Amount = string;
 
 export type DexLastPrice = {
     asset1: Asset;
@@ -186,7 +172,7 @@ export type DexMeanPrice = {
     asset2: Asset;
     amount1: Amount;
     amount2: Amount;
-}
+};
 
 export type DexSwap = {
     tx_hash: string;
@@ -196,7 +182,7 @@ export type DexSwap = {
     amount1: Amount;
     amount2: Amount;
     direction: Direction;
-}
+};
 
 type Cip25Metadata = string;
 
@@ -206,4 +192,40 @@ export type Cip25Response = {
      * @example { "b863bc7369f46136ac1048adb2fa7dae3af944c3bbb2be2f216a8d4f": { "42657272794e617679": "a365636f6c6f72672330303030383065696d616765783a697066733a2f2f697066732f516d534b593167317a5375506b3536635869324b38524e766961526b44485633505a756a7474663755676b343379646e616d656a4265727279204e617679" }}
      */
     cip25: { [policyId: string]: { [assetName: string]: Cip25Metadata } };
-  };
+};
+
+export type BlockTxPair = {
+    /**
+     * block hash
+     * @pattern [0-9a-fA-F]{64}
+     * @example "2548ad5d0d9d33d50ab43151f574474454017a733e307229fa509c4987ca9782"
+     */
+    block: string;
+    /**
+     * tx hash
+     * @pattern [0-9a-fA-F]{64}
+     * @example "336d520af58ff440b2f20210ddb5ef5b2c035e0ec7ec258bae4b519a87fa1696"
+     */
+    tx: string;
+};
+
+export type AfterBlockPagination = {
+    /**
+     * Omitting "after" means you query starting from the genesis block.
+     *
+     * Note: the reason you have to specify both a tx hash AND a block hash in the "after" for pagination
+     * is because this is the only way to make sure your pagination doesn't get affected by rollbacks.
+     * ex: a rollback could cause a tx to be removed from one block and appear in a totally different block.
+     * Specifying the block hash as well allows making sure you're paginating on the right tx in the right block.
+     */
+    after?: BlockTxPair;
+};
+export type UntilBlockPagination = {
+    /**
+     * block hash - inclusive
+     * @pattern [0-9a-fA-F]{64}
+     * @example "cf8c63a909d91776e27f7d05457e823a9dba606a7ab499ac435e7904ee70d7c8"
+     */
+    untilBlock: string;
+};
+export type Pagination = AfterBlockPagination & UntilBlockPagination;

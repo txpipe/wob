@@ -1,5 +1,5 @@
 import { Route, Controller, Tags, Post, Body, Example } from 'tsoa';
-import { DexLastPriceRequestBody, DexMeanPriceRequestBody, DexSwapPriceRequestBody } from '../model/requests';
+import { DexLastPriceRequestBody, DexMeanPriceRequestBody, DexSwapRequestBody } from '../model/requests';
 import { CarpService } from '../services/carpService';
 import { inject } from 'inversify';
 import { ProvideSingleton } from '../ioc';
@@ -69,7 +69,7 @@ export class DexController extends Controller {
     ])
     @Post('/mean-price')
     public async getMeanPrice(@Body() requestBody: DexMeanPriceRequestBody): Promise<DexMeanPrice[]> {
-        return this.carpService.getMeanPrice(requestBody.assetPairs, requestBody.dexes, requestBody.limit);
+        return this.carpService.getMeanPrice(requestBody.assetPairs, requestBody.dexes, requestBody.after, requestBody.untilBlock, requestBody.limit);
     }
 
     /**
@@ -97,7 +97,7 @@ export class DexController extends Controller {
         },
     ])
     @Post('/swap-price')
-    public async getSwapPrice(@Body() requestBody: DexSwapPriceRequestBody): Promise<DexSwap[]> {
-        return this.carpService.getSwapPrice(requestBody.dexes, requestBody.assetPairs, requestBody.limit);
+    public async getSwapPrice(@Body() requestBody: DexSwapRequestBody): Promise<DexSwap[]> {
+        return this.carpService.getSwapPrice(requestBody.dexes, requestBody.assetPairs, requestBody.after, requestBody.untilBlock, requestBody.limit);
     }
 }

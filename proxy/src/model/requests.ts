@@ -1,4 +1,4 @@
-import { Address, AddressAfter, Asset, AssetName, Dex, PriceType, UtxoPointer } from './carp';
+import { Address, Asset, AssetName, Dex, Pagination, PriceType, UtxoPointer } from './carp';
 
 export type AccountDelegationAndRewardsRequestBody = {
     stakeKeyHashes: string[];
@@ -6,9 +6,7 @@ export type AccountDelegationAndRewardsRequestBody = {
 
 export type AddressUsedRequestBody = {
     addresses: Address[];
-    after: AddressAfter;
-    untilBlock: string;
-};
+} & Pagination;
 
 export type MetadataNftRequestBody = {
     /**
@@ -27,11 +25,9 @@ export type TransactionSubmitRequestBody = {
 
 export type TransactionHistoryRequestBody = {
     addresses: Address[];
-    after: AddressAfter;
-    untilBlock: string;
     limit?: number;
     relationFilter?: number;
-};
+} & Pagination;
 
 export type DexLastPriceRequestBody = {
     assetPairs: { asset1: Asset; asset2: Asset }[];
@@ -43,11 +39,11 @@ export type DexMeanPriceRequestBody = {
     dexes: Array<Dex>;
     /** Defaults to `DEX_PRICE_LIMIT.RESPONSE` */
     limit?: number;
-};
+} & Pagination;
 
-export type DexSwapPriceRequestBody = {
+export type DexSwapRequestBody = {
     dexes: Array<Dex>;
     assetPairs: { asset1: Asset; asset2: Asset }[];
     /** Defaults to `DEX_PRICE_LIMIT.RESPONSE` */
     limit?: number;
-};
+} & Pagination;

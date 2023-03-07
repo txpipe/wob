@@ -82,18 +82,29 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"union","subSchemas":[{"ref":"CredentialHex"},{"ref":"Bech32FullAddress"},{"ref":"Bech32Credential"},{"ref":"Base58Address"}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "AddressAfter": {
-        "dataType": "refObject",
-        "properties": {
-            "tx": {"dataType":"string","required":true},
-            "block": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
+    "BlockTxPair": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"tx":{"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]{64}"}}},"block":{"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]{64}"}}}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AfterBlockPagination": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"after":{"ref":"BlockTxPair"}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UntilBlockPagination": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"untilBlock":{"dataType":"string","required":true,"validators":{"pattern":{"value":"[0-9a-fA-F]{64}"}}}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pagination": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"AfterBlockPagination"},{"ref":"UntilBlockPagination"}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "AddressUsedRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"untilBlock":{"dataType":"string","required":true},"after":{"ref":"AddressAfter","required":true},"addresses":{"dataType":"array","array":{"dataType":"refAlias","ref":"Address"},"required":true}},"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"addresses":{"dataType":"array","array":{"dataType":"refAlias","ref":"Address"},"required":true}}},{"ref":"Pagination"}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Signature": {
@@ -255,7 +266,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "DexMeanPriceRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double"},"dexes":{"dataType":"array","array":{"dataType":"refEnum","ref":"Dex"},"required":true},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true}},"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double"},"dexes":{"dataType":"array","array":{"dataType":"refEnum","ref":"Dex"},"required":true},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true}}},{"ref":"Pagination"}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Direction": {
@@ -268,9 +279,9 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"direction":{"ref":"Direction","required":true},"amount2":{"ref":"Amount","required":true},"amount1":{"ref":"Amount","required":true},"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true},"dex":{"ref":"Dex","required":true},"tx_hash":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "DexSwapPriceRequestBody": {
+    "DexSwapRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double"},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true},"dexes":{"dataType":"array","array":{"dataType":"refEnum","ref":"Dex"},"required":true}},"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"limit":{"dataType":"double"},"assetPairs":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"asset2":{"ref":"Asset","required":true},"asset1":{"ref":"Asset","required":true}}},"required":true},"dexes":{"dataType":"array","array":{"dataType":"refEnum","ref":"Dex"},"required":true}}},{"ref":"Pagination"}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pool": {
@@ -319,7 +330,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransactionHistoryRequestBody": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"relationFilter":{"dataType":"double"},"limit":{"dataType":"double"},"untilBlock":{"dataType":"string","required":true},"after":{"ref":"AddressAfter","required":true},"addresses":{"dataType":"array","array":{"dataType":"refAlias","ref":"Address"},"required":true}},"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"relationFilter":{"dataType":"double"},"limit":{"dataType":"double"},"addresses":{"dataType":"array","array":{"dataType":"refAlias","ref":"Address"},"required":true}}},{"ref":"Pagination"}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Utxo": {
@@ -647,7 +658,7 @@ export function RegisterRoutes(app: Router) {
 
             async function DexController_getSwapPrice(request: any, response: any, next: any) {
             const args = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"DexSwapPriceRequestBody"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"DexSwapRequestBody"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
