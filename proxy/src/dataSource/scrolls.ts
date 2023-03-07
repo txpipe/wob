@@ -8,7 +8,6 @@ dotenv.config();
 
 export interface ScrollsDataSource {
     getAddressForHandle(handle: string): Promise<AdaHandle[]>;
-    getLatestBlock(): Promise<unknown>;
 }
 
 @ProvideSingleton(ScrollsRedisDataSource)
@@ -51,10 +50,5 @@ export class ScrollsRedisDataSource implements ScrollsDataSource {
         });
 
         return result;
-    }
-
-    //@TODO: Implement a scroll reducer - check if we need a different redis client
-    getLatestBlock(): Promise<unknown> {
-        throw new Error('Method not implemented.');
     }
 }

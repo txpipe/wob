@@ -10,9 +10,4 @@ export class ScrollsService {
     public async getAddressForHandle(handle: string): Promise<AdaHandle[]> {
         return this.dataSource.getAddressForHandle(handle);
     }
-
-    public async getLatestBlock(): Promise<unknown> {
-        //@TODO: Implement
-        return;
-    }
 }

@@ -10,8 +10,8 @@ dotenv.config();
 export type Network = 'cardano-mainnet' | 'cardano-preprod' | 'cardano-preview';
 
 /**
- * Returns the blockfrost base URL given the network we are connecting to
- * @TODO check if this is required or if we just set the URL as part of the container envs
+ * Returns the blockfrost base URL given the network we are connecting to. This could be implemented
+ * by passing by the URL as part of the config directly instead of the network
  * @param network
  * @returns
  */
