@@ -30,8 +30,8 @@ export class AddressController extends Controller {
      */
     @Example<AdaHandle[]>([
         {
-            key: 'todo',
-            value: 'todo',
+            key: 'luvaloho',
+            value: 'addr_test1qq4drn4j46emtfydwfc0j2gtw2ty0zgwtr3k0srmjg7nwy834r3hjynmsy2cxpc04a6dkqxcsr29qfl7v9cmrd5mm89qept00g',
         },
     ])
     @Get('/handle/{handle}')

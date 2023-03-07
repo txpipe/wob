@@ -1,4 +1,4 @@
-use futures::future::{join4, join5};
+use futures::future::{join5};
 use miette::Diagnostic;
 use thiserror::Error;
 
@@ -61,6 +61,10 @@ macro_rules! for_every_enabled_provider {
             crate::providers::carp::$func($ctx, &$ctx.config.carp).await?;
         }
 
+        if $ctx.config.scrolls.enabled {
+            crate::providers::scrolls::$func($ctx, &$ctx.config.scrolls).await?;
+        }
+
         if $ctx.config.proxy.enabled {
             crate::providers::proxy::$func($ctx, &$ctx.config.proxy).await?;
         }
@@ -69,19 +73,21 @@ macro_rules! for_every_enabled_provider {
 
 macro_rules! for_every_provider_concurrently {
     ($func:ident, $ctx:expr) => {{
-        let x = join4(
+        let x = join5(
             crate::providers::node::$func($ctx, &$ctx.config.node),
             crate::providers::ogmios::$func($ctx, &$ctx.config.ogmios),
             crate::providers::carp::$func($ctx, &$ctx.config.carp),
+            crate::providers::scrolls::$func($ctx, &$ctx.config.scrolls),
             crate::providers::proxy::$func($ctx, &$ctx.config.proxy),
         );
 
-        let (a, b, c, d) = x.await;
+        let (a, b, c, d, e) = x.await;
 
         a?;
         b?;
         c?;
         d?;
+        e?;
     }};
 }
 

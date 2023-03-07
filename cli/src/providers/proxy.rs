@@ -95,7 +95,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
     let spec = ContainerSpec {
         image: Some(image),
         env: Some(vec![
-            "SCROLLS_URL=redis://kvrocks-mainnet-adahandle.ftr-scrolls-v0.svc.cluster.local:6666",
+            "SCROLLS_URL=redis://scrolls-redis:6379",
             "CARP_HOST=http://carp-webserver:3000",
             "OGMIOS_HOST=ogmios",
             "OGMIOS_PORT=1337",
