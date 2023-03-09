@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fmt::Display, path::PathBuf};
 
 use config as framework;
 use serde::{Deserialize, Serialize};
@@ -19,6 +19,9 @@ pub struct InitInputs {
 pub fn build_config(inputs: &InitInputs) -> Result<Config, Error> {
     let config = crate::config::Config {
         name: inputs.name.to_owned(),
+        network: NetworkConfig {
+            wellknown: Some(inputs.network.to_owned()),
+        },
         carp: providers::carp::Config::build(&inputs),
         node: providers::node::Config::build(&inputs),
         ogmios: providers::ogmios::Config::build(&inputs),
@@ -45,9 +48,19 @@ pub enum WellknownNetwork {
     Preview,
 }
 
+impl Display for WellknownNetwork {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WellknownNetwork::Mainnet => write!(f, "mainnet"),
+            WellknownNetwork::PreProd => write!(f, "preprod"),
+            WellknownNetwork::Preview => write!(f, "preview"),
+        }
+    }
+}
+
 #[derive(Default, Clone, Deserialize, Serialize)]
 pub struct NetworkConfig {
-    wellknown: Option<WellknownNetwork>,
+    pub wellknown: Option<WellknownNetwork>,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -64,10 +77,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            network: NetworkConfig {
-                wellknown: Some(WellknownNetwork::Preview),
-                ..Default::default()
-            },
+            network: Default::default(),
             name: "onebox".to_owned(),
             proxy: Default::default(),
             carp: Default::default(),

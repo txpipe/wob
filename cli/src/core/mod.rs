@@ -1,4 +1,4 @@
-use futures::future::{join5};
+use futures::future::join5;
 use miette::Diagnostic;
 use thiserror::Error;
 

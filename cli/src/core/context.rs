@@ -14,7 +14,7 @@ use futures::StreamExt;
 use tracing::{debug, error, info, instrument, warn};
 
 use super::Error;
-use crate::config::Config;
+use crate::config::{Config, WellknownNetwork};
 
 pub type ContainerSpec<Z> = bollard::container::Config<Z>;
 
@@ -407,6 +407,25 @@ impl Context {
         info!("static file imported");
 
         Ok(())
+    }
+
+    pub fn import_network_static_file(
+        &self,
+        rel_source: String,
+        rel_target: Option<PathBuf>,
+    ) -> Result<(), Error> {
+        let network = self
+            .config
+            .network
+            .wellknown
+            .as_ref()
+            .unwrap_or(&WellknownNetwork::Preview);
+
+        let target = rel_target.unwrap_or_else(|| rel_source.clone().into());
+
+        let source: PathBuf = format!("{}/{}", network, rel_source).into();
+
+        self.import_static_file(source, target)
     }
 
     #[instrument(skip(self))]

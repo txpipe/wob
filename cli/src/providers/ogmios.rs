@@ -3,8 +3,6 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info, instrument};
 
-use crate::config::InitInputs;
-
 use super::prelude::*;
 
 pub const PROVIDER_ID: &str = "ogmios";
@@ -44,9 +42,9 @@ fn define_image(config: &Config) -> &str {
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from(&"ogmios"))?;
 
-    ctx.import_static_file(
-        PathBuf::from("preview/node/config.json"),
-        PathBuf::from("ogmios/config.json"),
+    ctx.import_network_static_file(
+        String::from("node/config.json"),
+        Some(PathBuf::from("ogmios/config.json")),
     )?;
 
     let image_name = define_image(config);

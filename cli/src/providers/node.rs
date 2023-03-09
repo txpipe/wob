@@ -3,8 +3,6 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, instrument};
 
-use crate::config::InitInputs;
-
 use super::prelude::*;
 
 pub const PROVIDER_ID: &str = "node";
@@ -43,32 +41,14 @@ fn define_image(config: &Config) -> &str {
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from(&"node"))?;
 
-    ctx.import_static_file(
-        PathBuf::from("preview/node/config.json"),
-        PathBuf::from("node/config.json"),
-    )?;
-
-    ctx.import_static_file(
-        PathBuf::from("preview/node/topology.json"),
-        PathBuf::from("node/topology.json"),
-    )?;
+    ctx.import_network_static_file(String::from("node/config.json"), None)?;
+    ctx.import_network_static_file(String::from("node/topology.json"), None)?;
 
     ctx.ensure_host_dir(PathBuf::from("genesis"))?;
 
-    ctx.import_static_file(
-        PathBuf::from("preview/genesis/byron.json"),
-        PathBuf::from("genesis/byron.json"),
-    )?;
-
-    ctx.import_static_file(
-        PathBuf::from("preview/genesis/shelley.json"),
-        PathBuf::from("genesis/shelley.json"),
-    )?;
-
-    ctx.import_static_file(
-        PathBuf::from("preview/genesis/alonzo.json"),
-        PathBuf::from("genesis/alonzo.json"),
-    )?;
+    ctx.import_network_static_file(String::from("genesis/byron.json"), None)?;
+    ctx.import_network_static_file(String::from("genesis/shelley.json"), None)?;
+    ctx.import_network_static_file(String::from("genesis/alonzo.json"), None)?;
 
     ctx.ensure_host_dir(PathBuf::from("ipc"))?;
 
@@ -119,6 +99,15 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     let image = define_image(config);
 
+    let cardano_network = format!(
+        "NETWORK={}",
+        ctx.config
+            .network
+            .wellknown
+            .as_ref()
+            .unwrap_or(&WellknownNetwork::Preview)
+    );
+
     let spec = ContainerSpec {
         image: Some(image),
         entrypoint: Some(vec![
@@ -135,7 +124,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
             "--port",
             "3000",
         ]),
-        env: Some(vec!["NETWORK=preview"]),
+        env: Some(vec![&cardano_network]),
         host_config: Some(host_config),
         ..Default::default()
     };
