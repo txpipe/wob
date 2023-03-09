@@ -426,7 +426,6 @@ impl Context {
         let source: PathBuf = format!("{}/{}", network, rel_source).into();
 
         self.import_static_file(source, target)
-
     }
 
     #[instrument(skip(self))]
