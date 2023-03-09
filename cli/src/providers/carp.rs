@@ -4,8 +4,6 @@ use futures::future::join3;
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
-use crate::config::InitInputs;
-
 use super::prelude::*;
 
 pub const PROVIDER_ID: &str = "carp";
@@ -35,10 +33,7 @@ fn define_image(config: &Config) -> &str {
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from("carp"))?;
 
-    ctx.import_static_file(
-        PathBuf::from(format!("{}/carp/oura.yml", ctx.get_cardano_network())),
-        PathBuf::from("carp/oura.yml"),
-    )?;
+    ctx.import_network_static_file(String::from("carp/oura.yml"), None)?;
 
     ctx.ensure_host_dir(PathBuf::from("carp/pgdata"))?;
 
@@ -109,7 +104,14 @@ pub async fn up_indexer(ctx: &Context, config: &Config) -> Result<(), Error> {
         ..Default::default()
     };
 
-    let cardano_network = format!("NETWORK={}", ctx.get_cardano_network());
+    let cardano_network = format!(
+        "NETWORK={}",
+        ctx.config
+            .network
+            .wellknown
+            .as_ref()
+            .unwrap_or(&WellknownNetwork::Preview)
+    );
     let carp_spec = ContainerSpec {
         image: Some(image_name),
         env: Some(vec![

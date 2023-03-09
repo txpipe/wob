@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{fmt::Display, path::PathBuf};
 
 use config as framework;
 use serde::{Deserialize, Serialize};
@@ -46,6 +46,16 @@ pub enum WellknownNetwork {
 
     #[strum(ascii_case_insensitive)]
     Preview,
+}
+
+impl Display for WellknownNetwork {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WellknownNetwork::Mainnet => write!(f, "mainnet"),
+            WellknownNetwork::PreProd => write!(f, "preprod"),
+            WellknownNetwork::Preview => write!(f, "preview"),
+        }
+    }
 }
 
 #[derive(Default, Clone, Deserialize, Serialize)]

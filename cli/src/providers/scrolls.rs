@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, collections::HashMap};
+use std::{collections::HashMap, path::PathBuf};
 use tracing::{debug, info, instrument};
-
-use crate::config::InitInputs;
 
 use super::prelude::*;
 
@@ -33,10 +31,7 @@ fn define_image(config: &Config) -> &str {
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from(&"scrolls"))?;
 
-    ctx.import_static_file(
-        PathBuf::from(format!("{}/scrolls/adahandle.toml", ctx.get_cardano_network())),
-        PathBuf::from("scrolls/adahandle.toml"),
-    )?;
+    ctx.import_network_static_file(String::from("scrolls/adahandle.toml"), None)?;
 
     let image_name = define_image(config);
 
@@ -69,16 +64,17 @@ pub async fn up_redis(ctx: &Context, _config: &Config) -> Result<(), Error> {
         mounts: Some(ctx.define_mounts()),
         network_mode: Some(ctx.define_network_name()),
         port_bindings: Some(redis_port_bindings),
-        binds: Some(vec![String::from(format!("{}/redis:/bitnami/redis/data", ctx.working_dir.to_string_lossy()))]),
+        binds: Some(vec![String::from(format!(
+            "{}/redis:/bitnami/redis/data",
+            ctx.working_dir.to_string_lossy()
+        ))]),
         ..Default::default()
     };
 
     let redis_spec = ContainerSpec {
         image: Some("bitnami/redis:latest"),
         hostname: Some("scrolls-redis"),
-        env: Some(vec![
-            "ALLOW_EMPTY_PASSWORD=yes",
-        ]),
+        env: Some(vec!["ALLOW_EMPTY_PASSWORD=yes"]),
         host_config: Some(redis_host_config),
         ..Default::default()
     };
@@ -101,14 +97,8 @@ pub async fn up_daemon(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     let scrolls_spec = ContainerSpec {
         image: Some(image_name),
-        cmd: Some(vec![
-            "daemon",
-            "--config",
-            "/host/scrolls/adahandle.toml"
-        ]),
-        env: Some(vec![
-            "RUST_LOG=debug",
-        ]),
+        cmd: Some(vec!["daemon", "--config", "/host/scrolls/adahandle.toml"]),
+        env: Some(vec!["RUST_LOG=debug"]),
         hostname: Some("scrolls"),
         host_config: Some(scrolls_host_config),
         ..Default::default()

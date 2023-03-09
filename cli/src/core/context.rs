@@ -78,15 +78,6 @@ impl Context {
         format!("wob_{}", self.config.name)
     }
 
-    pub fn get_cardano_network(&self) -> String {
-        match self.config.network.wellknown {
-            Some(WellknownNetwork::Mainnet) => String::from("mainnet").into(),
-            Some(WellknownNetwork::Preview) => String::from("preview").into(),
-            Some(WellknownNetwork::PreProd) => String::from("preprod").into(),
-            None => String::from("preview").into(),
-        }
-    }
-
     async fn network_exists(&self, name: &str) -> Result<bool, Error> {
         Ok(self
             .docker
@@ -411,6 +402,36 @@ impl Context {
 
         let mut source = self.static_files_root.clone();
         source.push(rel_source);
+
+        std::fs::copy(source, target).map_err(Error::file_system)?;
+        info!("static file imported");
+
+        Ok(())
+    }
+
+    pub fn import_network_static_file(
+        &self,
+        rel_source: String,
+        rel_target: Option<PathBuf>,
+    ) -> Result<(), Error> {
+        let network = self
+            .config
+            .network
+            .wellknown
+            .as_ref()
+            .unwrap_or(&WellknownNetwork::Preview);
+
+        let mut target = self.working_dir.clone();
+        target.push(rel_target.unwrap_or_else(|| rel_source.clone().into()));
+
+        if target.is_file() {
+            debug!("file already exists");
+            return Ok(());
+        }
+
+        let mut source = self.static_files_root.clone();
+        let rel_source_with_network = format!("{}/{}", network, rel_source);
+        source.push(rel_source_with_network);
 
         std::fs::copy(source, target).map_err(Error::file_system)?;
         info!("static file imported");

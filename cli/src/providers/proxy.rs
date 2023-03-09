@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
-use crate::config::{InitInputs, WellknownNetwork};
-
 use super::prelude::*;
 
 pub const PROVIDER_ID: &str = "proxy";
