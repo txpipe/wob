@@ -21,7 +21,7 @@ export class OgmiosClientDataSource implements OgmiosDataSource {
     constructor() {
         this.host = process.env.OGMIOS_HOST!;
         this.port = Number(process.env.OGMIOS_PORT!);
-        this.tls = Boolean(process.env.TLS);
+        this.tls = Boolean(process.env.OGMIOS_TLS || false);
     }
 
     async getDelegationsAndRewards(stakeKeyHashes: string[]): Promise<DelegationAndRewardsByAccount> {

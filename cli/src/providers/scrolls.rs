@@ -29,9 +29,11 @@ fn define_image(config: &Config) -> &str {
 
 #[instrument(name = "scrolls", skip_all)]
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
-    ctx.ensure_host_dir(PathBuf::from(&"scrolls"))?;
+    ctx.ensure_host_dir(PathBuf::from("scrolls"))?;
 
     ctx.import_network_static_file(String::from("scrolls/adahandle.toml"), None)?;
+
+    ctx.ensure_host_dir(PathBuf::from("scrolls/redis"))?;
 
     let image_name = define_image(config);
 
@@ -65,7 +67,7 @@ pub async fn up_redis(ctx: &Context, _config: &Config) -> Result<(), Error> {
         network_mode: Some(ctx.define_network_name()),
         port_bindings: Some(redis_port_bindings),
         binds: Some(vec![String::from(format!(
-            "{}/redis:/bitnami/redis/data",
+            "{}/scrolls/redis:/bitnami/redis/data",
             ctx.working_dir.to_string_lossy()
         ))]),
         ..Default::default()

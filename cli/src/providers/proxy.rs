@@ -97,6 +97,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
             "CARP_HOST=http://carp-webserver:3000",
             "OGMIOS_HOST=ogmios",
             "OGMIOS_PORT=1337",
+            "OGMIOS_TLS=false",
             "PORT=8000",
             &bf_api_key,
             &bf_network,
