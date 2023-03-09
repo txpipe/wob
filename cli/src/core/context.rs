@@ -421,22 +421,12 @@ impl Context {
             .as_ref()
             .unwrap_or(&WellknownNetwork::Preview);
 
-        let mut target = self.working_dir.clone();
-        target.push(rel_target.unwrap_or_else(|| rel_source.clone().into()));
+        let target = rel_target.unwrap_or_else(|| rel_source.clone().into());
 
-        if target.is_file() {
-            debug!("file already exists");
-            return Ok(());
-        }
+        let source: PathBuf = format!("{}/{}", network, rel_source).into();
 
-        let mut source = self.static_files_root.clone();
-        let rel_source_with_network = format!("{}/{}", network, rel_source);
-        source.push(rel_source_with_network);
+        self.import_static_file(source, target)
 
-        std::fs::copy(source, target).map_err(Error::file_system)?;
-        info!("static file imported");
-
-        Ok(())
     }
 
     #[instrument(skip(self))]
