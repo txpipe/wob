@@ -34,7 +34,7 @@ pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from(&"scrolls"))?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/scrolls/adahandle.toml"),
+        PathBuf::from(format!("{}/scrolls/adahandle.toml", ctx.get_cardano_network())),
         PathBuf::from("scrolls/adahandle.toml"),
     )?;
 

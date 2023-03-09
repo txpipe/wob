@@ -36,7 +36,7 @@ pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from("carp"))?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/carp/oura.yml"),
+        PathBuf::from(format!("{}/carp/oura.yml", ctx.get_cardano_network())),
         PathBuf::from("carp/oura.yml"),
     )?;
 
@@ -109,10 +109,11 @@ pub async fn up_indexer(ctx: &Context, config: &Config) -> Result<(), Error> {
         ..Default::default()
     };
 
+    let cardano_network = format!("NETWORK={}", ctx.get_cardano_network());
     let carp_spec = ContainerSpec {
         image: Some(image_name),
         env: Some(vec![
-            "NETWORK=preview",
+            &cardano_network,
             "POSTGRES_HOST=carp-postgres",
             "DATABASE_URL=postgresql://carp:1234@carp-postgres:5432/carp",
             "POSTGRES_PORT=5432",

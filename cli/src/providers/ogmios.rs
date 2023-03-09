@@ -45,7 +45,7 @@ pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from(&"ogmios"))?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/node/config.json"),
+        PathBuf::from(format!("{}/node/config.json", ctx.get_cardano_network())),
         PathBuf::from("ogmios/config.json"),
     )?;
 

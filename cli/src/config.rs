@@ -19,6 +19,9 @@ pub struct InitInputs {
 pub fn build_config(inputs: &InitInputs) -> Result<Config, Error> {
     let config = crate::config::Config {
         name: inputs.name.to_owned(),
+        network: NetworkConfig {
+            wellknown: Some(inputs.network.to_owned()),
+        },
         carp: providers::carp::Config::build(&inputs),
         node: providers::node::Config::build(&inputs),
         ogmios: providers::ogmios::Config::build(&inputs),
@@ -47,7 +50,7 @@ pub enum WellknownNetwork {
 
 #[derive(Default, Clone, Deserialize, Serialize)]
 pub struct NetworkConfig {
-    wellknown: Option<WellknownNetwork>,
+    pub wellknown: Option<WellknownNetwork>,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -64,10 +67,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            network: NetworkConfig {
-                wellknown: Some(WellknownNetwork::Preview),
-                ..Default::default()
-            },
+            network: Default::default(),
             name: "onebox".to_owned(),
             proxy: Default::default(),
             carp: Default::default(),

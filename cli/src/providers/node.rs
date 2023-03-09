@@ -43,30 +43,32 @@ fn define_image(config: &Config) -> &str {
 pub async fn init(ctx: &Context, config: &Config) -> Result<(), Error> {
     ctx.ensure_host_dir(PathBuf::from(&"node"))?;
 
+    let cardano_network = ctx.get_cardano_network();
+
     ctx.import_static_file(
-        PathBuf::from("preview/node/config.json"),
+        PathBuf::from(format!("{}/node/config.json", cardano_network)),
         PathBuf::from("node/config.json"),
     )?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/node/topology.json"),
+        PathBuf::from(format!("{}/node/topology.json", cardano_network)),
         PathBuf::from("node/topology.json"),
     )?;
 
     ctx.ensure_host_dir(PathBuf::from("genesis"))?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/genesis/byron.json"),
+        PathBuf::from(format!("{}/genesis/byron.json", cardano_network)),
         PathBuf::from("genesis/byron.json"),
     )?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/genesis/shelley.json"),
+        PathBuf::from(format!("{}/genesis/shelley.json", cardano_network)),
         PathBuf::from("genesis/shelley.json"),
     )?;
 
     ctx.import_static_file(
-        PathBuf::from("preview/genesis/alonzo.json"),
+        PathBuf::from(format!("{}/genesis/alonzo.json", cardano_network)),
         PathBuf::from("genesis/alonzo.json"),
     )?;
 
@@ -119,6 +121,8 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
 
     let image = define_image(config);
 
+    let cardano_network = format!("NETWORK={}", ctx.get_cardano_network());
+
     let spec = ContainerSpec {
         image: Some(image),
         entrypoint: Some(vec![
@@ -135,7 +139,7 @@ pub async fn up(ctx: &Context, config: &Config) -> Result<(), Error> {
             "--port",
             "3000",
         ]),
-        env: Some(vec!["NETWORK=preview"]),
+        env: Some(vec![&cardano_network]),
         host_config: Some(host_config),
         ..Default::default()
     };

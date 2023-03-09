@@ -14,7 +14,7 @@ use futures::StreamExt;
 use tracing::{debug, error, info, instrument, warn};
 
 use super::Error;
-use crate::config::Config;
+use crate::config::{Config, WellknownNetwork};
 
 pub type ContainerSpec<Z> = bollard::container::Config<Z>;
 
@@ -76,6 +76,15 @@ impl Context {
 
     pub fn define_network_name(&self) -> String {
         format!("wob_{}", self.config.name)
+    }
+
+    pub fn get_cardano_network(&self) -> String {
+        match self.config.network.wellknown {
+            Some(WellknownNetwork::Mainnet) => String::from("mainnet").into(),
+            Some(WellknownNetwork::Preview) => String::from("preview").into(),
+            Some(WellknownNetwork::PreProd) => String::from("preprod").into(),
+            None => String::from("preview").into(),
+        }
     }
 
     async fn network_exists(&self, name: &str) -> Result<bool, Error> {
