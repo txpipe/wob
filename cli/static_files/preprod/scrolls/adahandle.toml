@@ -13,7 +13,7 @@ type = "Redis"
 connection_params = "redis://scrolls-redis:6379"
 
 [chain]
-type = "Preprod"
+type = "PreProd"
 
 [intersect]
 type = "Origin"
